@@ -5,7 +5,7 @@ const defaultOptions: oh.OpeningHoursOptions = {
     currentDate: new Date(2020, 8, 6),
     currentDayOnTop: false,
     locales: 'de-DE',
-    formatOptions: {
+    dateTimeFormatOptions: {
         timeZone: 'Europe/Berlin',
         hour: '2-digit',
         minute: '2-digit',
@@ -130,54 +130,40 @@ describe('options test', () => {
 
 describe('add(weekDay, "h:mm", "h:mm") - after current date', () => {
     it('toString', () => {
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(2020, 8, 6),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
-        });
+        const openingHours = new oh.OpeningHours(defaultOptions);
         openingHours.add(oh.WeekDays.Monday, '8:30', '14:30');
         openingHours.add(oh.WeekDays.Monday, '15:00', '20:00');
         expect(openingHours.toString()).toBe('mon 08:30 - 14:30, 15:00 - 20:00');
     });
 
     it('toJSON', () => {
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(2020, 8, 6),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
-        });
+        const openingHours = new oh.OpeningHours(defaultOptions);
         openingHours.add(oh.WeekDays.Monday, '8:30', '14:30');
         openingHours.add(oh.WeekDays.Monday, '15:00', '20:00');
         expect(openingHours.toJSON()).toStrictEqual([{
             "day": 1,
-            "from": "2020-09-07T06:30:00.000Z",
-            "until": "2020-09-07T12:30:00.000Z"
+            "from": "0830",
+            "until": "1430"
         },
         {
             "day": 1,
-            "from": "2020-09-07T13:00:00.000Z",
-            "until": "2020-09-07T18:00:00.000Z"
+            "from": "1500",
+            "until": "2000"
         }]);
     });
 
     it('toLocaleJSON', () => {
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(2020, 8, 6),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
-        });
+        const openingHours = new oh.OpeningHours(defaultOptions);
         openingHours.add(oh.WeekDays.Monday, '8:30', '14:30');
         openingHours.add(oh.WeekDays.Monday, '15:00', '20:00');
         expect(openingHours.toLocaleJSON()).toStrictEqual([{
             "active": false,
-            "day": 1,
+            "day": "mon",
             "times": [
                 {
-                    "day": 1,
                     "from": "08:30",
                     "until": "14:30"
                 }, {
-                    "day": 1,
                     "from": "15:00",
                     "until": "20:00"
                 }
@@ -189,9 +175,8 @@ describe('add(weekDay, "h:mm", "h:mm") - after current date', () => {
 describe('add(weekDay, "h:mm", "h:mm") - current date', () => {
     it('toString', () => {
         const openingHours = new oh.OpeningHours({
+            ...defaultOptions,
             currentDate: new Date(2020, 8, 7),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
         });
         openingHours.add(oh.WeekDays.Monday, '8:30', '14:30');
         openingHours.add(oh.WeekDays.Monday, '15:00', '20:00');
@@ -200,21 +185,19 @@ describe('add(weekDay, "h:mm", "h:mm") - current date', () => {
 
     it('toLocaleJSON', () => {
         const openingHours = new oh.OpeningHours({
+            ...defaultOptions,
             currentDate: new Date(2020, 8, 7),
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
         });
         openingHours.add(oh.WeekDays.Monday, '8:30', '14:30');
         openingHours.add(oh.WeekDays.Monday, '15:00', '20:00');
         expect(openingHours.toLocaleJSON()).toStrictEqual([{
             "active": true,
-            "day": 1,
+            "day": "mon",
             "times": [
                 {
-                    "day": 1,
                     "from": "08:30",
                     "until": "14:30"
                 }, {
-                    "day": 1,
                     "from": "15:00",
                     "until": "20:00"
                 }
@@ -225,11 +208,7 @@ describe('add(weekDay, "h:mm", "h:mm") - current date', () => {
 
 describe('load(Array<{day, from: ISOString, until: ISOString}>) - after current date', () => {
     it('toString', () => {
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(2020, 8, 6),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
-        });
+        const openingHours = new oh.OpeningHours(defaultOptions);
         openingHours.load([
             { "day": 1, "from": "2020-09-07T06:30:00.000Z", "until": "2020-09-07T12:30:00.000Z" },
             { "day": 1, "from": "2020-09-07T13:00:00.000Z", "until": "2020-09-07T18:00:00.000Z" }
@@ -238,47 +217,37 @@ describe('load(Array<{day, from: ISOString, until: ISOString}>) - after current 
     });
 
     it('toJSON', () => {
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(2020, 8, 6),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
-        });
+        const openingHours = new oh.OpeningHours(defaultOptions);
         openingHours.load([
             { "day": 1, "from": "2020-09-07T06:30:00.000Z", "until": "2020-09-07T12:30:00.000Z" },
             { "day": 1, "from": "2020-09-07T13:00:00.000Z", "until": "2020-09-07T18:00:00.000Z" }
         ]);
         expect(openingHours.toJSON()).toStrictEqual([{
             "day": 1,
-            "from": "2020-09-07T06:30:00.000Z",
-            "until": "2020-09-07T12:30:00.000Z"
+            "from": "0830",
+            "until": "1430"
         },
         {
             "day": 1,
-            "from": "2020-09-07T13:00:00.000Z",
-            "until": "2020-09-07T18:00:00.000Z"
+            "from": "1500",
+            "until": "2000"
         }]);
     });
 
     it('toLocaleJSON', () => {
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(2020, 8, 6),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
-        });
+        const openingHours = new oh.OpeningHours(defaultOptions);
         openingHours.load([
             { "day": 1, "from": "2020-09-07T06:30:00.000Z", "until": "2020-09-07T12:30:00.000Z" },
             { "day": 1, "from": "2020-09-07T13:00:00.000Z", "until": "2020-09-07T18:00:00.000Z" }
         ]);
         expect(openingHours.toLocaleJSON()).toStrictEqual([{
             "active": false,
-            "day": 1,
+            "day": "mon",
             "times": [
                 {
-                    "day": 1,
                     "from": "08:30",
                     "until": "14:30"
                 }, {
-                    "day": 1,
                     "from": "15:00",
                     "until": "20:00"
                 }
@@ -290,9 +259,8 @@ describe('load(Array<{day, from: ISOString, until: ISOString}>) - after current 
 describe('load(Array<{day, from: ISOString, until: ISOString}>) - current date', () => {
     it('toString', () => {
         const openingHours = new oh.OpeningHours({
+            ...defaultOptions,
             currentDate: new Date(2020, 8, 7),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
         });
         openingHours.load([
             { "day": 1, "from": "2020-09-07T06:30:00.000Z", "until": "2020-09-07T12:30:00.000Z" },
@@ -303,24 +271,21 @@ describe('load(Array<{day, from: ISOString, until: ISOString}>) - current date',
 
     it('toLocaleJSON', () => {
         const openingHours = new oh.OpeningHours({
+            ...defaultOptions,
             currentDate: new Date(2020, 8, 7),
-            locales: 'de-DE',
-            formatOptions: { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' },
         });
         openingHours.load([
-            { "day": 1, "from": "2020-09-07T06:30:00.000Z", "until": "2020-09-07T12:30:00.000Z" },
-            { "day": 1, "from": "2020-09-07T13:00:00.000Z", "until": "2020-09-07T18:00:00.000Z" }
+            { "day": 1, "from": "0830", "until": "1430" },
+            { "day": 1, "from": "1500", "until": "2000" }
         ]);
         expect(openingHours.toLocaleJSON()).toStrictEqual([{
             "active": true,
-            "day": 1,
+            "day": "mon",
             "times": [
                 {
-                    "day": 1,
                     "from": "08:30",
                     "until": "14:30"
                 }, {
-                    "day": 1,
                     "from": "15:00",
                     "until": "20:00"
                 }

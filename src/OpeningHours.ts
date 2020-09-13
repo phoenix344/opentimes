@@ -23,8 +23,11 @@ export declare interface OpenTimeOutput {
 
 export declare interface OpenTimeResultOutput {
     active: boolean;
-    day: WeekDays;
-    times: OpenTimeOutput[];
+    day: string;
+    times: Array<{
+        from: string;
+        until: string;
+    }>;
 }
 
 export declare interface OpeningHoursOptions {
@@ -34,7 +37,7 @@ export declare interface OpeningHoursOptions {
     currentDate?: Date;
     currentDayOnTop?: boolean;
     locales?: string;
-    formatOptions?: Intl.DateTimeFormatOptions;
+    dateTimeFormatOptions?: Intl.DateTimeFormatOptions;
 }
 
 export enum WeekDays {
@@ -57,6 +60,11 @@ export class OpeningHours {
         currentDate: new Date(),
         currentDayOnTop: false,
         locales: 'de-DE',
+        dateTimeFormatOptions: { 
+            timeZone: "Europe/Berlin", 
+            hour: "2-digit",
+            minute: "2-digit"
+        }
     };
 
     private times: Map<WeekDays, OpenTimeInternal[]>;
@@ -113,10 +121,10 @@ export class OpeningHours {
             }
             result.push(...times
                 .map(time => {
-                    const from = this.getTimeByCurrentDay(time.from).toISOString();
-                    const until = this.getTimeByCurrentDay(time.until).toISOString();
+                    const from = this.convertToSimpleFormat(time.from);
+                    const until = this.convertToSimpleFormat(time.until);
                     return { day, from, until };
-                }))
+                }));
         }
         return result;
     }
@@ -137,12 +145,12 @@ export class OpeningHours {
             const active = currentDate?.getDay() === day;
             openTimes[day] = {
                 active,
-                day,
+                day: (options.weekDays as string[])[day],
                 times: times
                     .map(time => {
-                        const from = time.from.toLocaleTimeString(locales, this.options.formatOptions);
-                        const until = time.until.toLocaleTimeString(locales, this.options.formatOptions);
-                        return { day, from, until };
+                        const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
+                        const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
+                        return { from, until };
                     }),
             };
         }
@@ -174,8 +182,8 @@ export class OpeningHours {
             const active = currentDate?.getDay() === day;
             const timeStr = times
                 .map(time => {
-                    const from = time.from.toLocaleTimeString(locales, this.options.formatOptions);
-                    const until = time.until.toLocaleTimeString(locales, this.options.formatOptions);
+                    const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
+                    const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
                     return from + fromUntilSeparator + until;
                 });
 
@@ -274,6 +282,16 @@ export class OpeningHours {
         }
     }
 
+    private convertToSimpleFormat(date: Date) {
+        const hours = date.getHours().toString();
+        const minutes = date.getMinutes().toString();
+        const seconds = date.getSeconds().toString();
+        return ('00' + hours).slice(hours.length) + 
+            ('00' + minutes).slice(minutes.length) + 
+            (seconds !== '0' ? 
+                ('00' + seconds).slice(seconds.length) : '');
+    }
+
     /**
      * normalize the end-of-day behavior
      * @param time
@@ -334,13 +352,8 @@ export class OpeningHours {
             if (!last || time.from > last.until) {
                 times.push(time);
                 last = time;
-            } else {
-                if (time.until > last.until) {
-                    last.until = time.until;
-                }
-                if (time.from < last.from) {
-                    last.from = time.from;
-                }
+            } else if (time.until > last.until) {
+                last.until = time.until;
             }
         }
     }
