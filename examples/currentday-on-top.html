@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<title>OpeningHours::toString()</title>
+<meta charset="utf-8">
+<style>
+    html {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+</style>
+<h1>OpeningHours::toString()</h1>
+
+<h2>Current day on top</h2>
+<pre id="a"></pre>
+
+<h2>Static week start</h2>
+<pre id="b"></pre>
+
+<script type="module">
+
+    import { OpeningHours, WeekDays } from '../lib/OpeningHours.js';
+
+    const currentDate = new Date(2020, 8, 15);
+
+    const oh = new OpeningHours({
+        currentDate,
+        showClosedDays: true,
+        text: {
+            weekDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+        }
+    });
+
+    oh.load([
+        { "day": 1, "from": "0800", "until": "1230" },
+        { "day": 1, "from": "1300", "until": "1600" },
+        { "day": 2, "from": "0800", "until": "1230" },
+        { "day": 2, "from": "1300", "until": "1600" },
+        { "day": 3, "from": "0800", "until": "1400" },
+        { "day": 4, "from": "0800", "until": "1230" },
+        { "day": 4, "from": "1300", "until": "1600" },
+        { "day": 5, "from": "0800", "until": "1230" },
+        { "day": 5, "from": "1300", "until": "1600" },
+        { "day": 6, "from": "1000", "until": "1400" }
+    ]);
+
+    document.querySelector('#a').innerHTML = oh.toString({
+        currentDayOnTop: true
+    });
+    document.querySelector('#b').innerHTML = oh.toString({
+        currentDayOnTop: false
+    });
+    setInterval(() => {
+        currentDate.setDate(currentDate.getDate() + 1);
+        document.querySelector('#a').innerHTML = oh.toString({
+            currentDayOnTop: true,
+            currentDate
+        });
+        document.querySelector('#b').innerHTML = oh.toString({
+            currentDayOnTop: false,
+            currentDate
+        });
+    }, 2000);
+</script>
+
+</html>

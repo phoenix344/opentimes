@@ -26,13 +26,13 @@ describe('options test', () => {
         openingHours.add(oh.WeekDays.Sunday, '23:59', '23:59');
 
         expect(openingHours.toString()).toBe(
-            '[sun 00:00 - 23:59]\n' +
             'mon 00:00 - 23:59\n' +
             'tue 00:00 - 23:59\n' +
             'wed 00:00 - 23:59\n' +
             'thu 00:00 - 23:59\n' +
             'fri 00:00 - 23:59\n' +
-            'sat 00:00 - 23:59'
+            'sat 00:00 - 23:59\n' +
+            '[sun 00:00 - 23:59]'
         );
     });
     it('midnight till midnight (current date is tuesday)', () => {
@@ -51,13 +51,13 @@ describe('options test', () => {
         openingHours.add(oh.WeekDays.Sunday, '23:59', '23:59');
 
         expect(openingHours.toString()).toBe(
-            'sun 00:00 - 23:59\n' +
             'mon 00:00 - 23:59\n' +
             '[tue 00:00 - 23:59]\n' +
             'wed 00:00 - 23:59\n' +
             'thu 00:00 - 23:59\n' +
             'fri 00:00 - 23:59\n' +
-            'sat 00:00 - 23:59'
+            'sat 00:00 - 23:59\n' +
+            'sun 00:00 - 23:59'
         );
     });
     it('midnight till midnight (weekStart / it\'s wednesday my dudes!)', () => {

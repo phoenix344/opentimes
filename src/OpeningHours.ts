@@ -31,13 +31,17 @@ export declare interface OpenTimeResultOutput {
 }
 
 export declare interface OpeningHoursOptions {
-    fromUntilSeparator?: string;
     weekStart?: WeekDays;
-    weekDays?: string[];
     currentDate?: Date;
     currentDayOnTop?: boolean;
     locales?: string;
     dateTimeFormatOptions?: Intl.DateTimeFormatOptions;
+    showClosedDays?: boolean;
+    text?: {
+        timespanSeparator?: string;
+        weekDays?: string[];
+        closed?: string;
+    };
 }
 
 export enum WeekDays {
@@ -54,9 +58,7 @@ export const WeekDaysShort = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 export class OpeningHours {
     static readonly defaultOptions: OpeningHoursOptions = {
-        fromUntilSeparator: ' - ',
-        weekStart: WeekDays.Sunday,
-        weekDays: WeekDaysShort,
+        weekStart: WeekDays.Monday,
         currentDate: new Date(),
         currentDayOnTop: false,
         locales: 'de-DE',
@@ -64,11 +66,22 @@ export class OpeningHours {
             timeZone: "Europe/Berlin", 
             hour: "2-digit",
             minute: "2-digit"
+        },
+        text: {
+            closed: 'closed',
+            timespanSeparator: ' - ',
+            weekDays: WeekDaysShort
         }
     };
 
-    private times: Map<WeekDays, OpenTimeInternal[]>;
+    private times: Array<OpenTimeInternal[]>;
     private options: OpeningHoursOptions;
+    private text: {
+        timespanSeparator: string;
+        weekDays: string[];
+        closed: string;
+        break: string;
+    };
 
     get isOpen() {
         return false;
@@ -76,15 +89,11 @@ export class OpeningHours {
 
     constructor(options: OpeningHoursOptions = {}) {
         this.options = { ...OpeningHours.defaultOptions, ...options };
-        this.times = new Map<WeekDays, OpenTimeInternal[]>([
-            [WeekDays.Sunday, []],
-            [WeekDays.Monday, []],
-            [WeekDays.Tuesday, []],
-            [WeekDays.Wednesday, []],
-            [WeekDays.Thursday, []],
-            [WeekDays.Friday, []],
-            [WeekDays.Saturday, []],
-        ]);
+        this.text = {
+            ...(OpeningHours.defaultOptions.text || {}),
+            ...this.options.text
+        } as never;
+        this.times = [[],[],[],[],[],[],[]];
     }
 
     /**
@@ -105,7 +114,7 @@ export class OpeningHours {
      * @param times 
      */
     load(times: OpenTimeInput[]) {
-        this.times.clear();
+        this.times.forEach(times => times.splice(0));
         for (const time of times) {
             const optimized = this.preOptimize(time);
             this.addIfNotExist(optimized);
@@ -145,7 +154,7 @@ export class OpeningHours {
             const active = currentDate?.getDay() === day;
             openTimes[day] = {
                 active,
-                day: (options.weekDays as string[])[day],
+                day: (this.text.weekDays as string[])[day],
                 times: times
                     .map(time => {
                         const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
@@ -158,7 +167,7 @@ export class OpeningHours {
         this.setCurrentDayOnTop(openTimes, options);
         const result = [];
         for (const item of openTimes) {
-            if (item) {
+            if (item || this.options.showClosedDays) {
                 result.push(item);
             }
         }
@@ -171,20 +180,21 @@ export class OpeningHours {
      */
     toString(options: OpeningHoursOptions = {}) {
         options = { ...this.options, ...options };
-        const { currentDate, fromUntilSeparator, locales } = options;
+        const { currentDate, locales } = options;
         const openTimes = [];
-        const weekDays = this.options.weekDays || WeekDaysShort;
+        const weekDays = this.text.weekDays || WeekDaysShort;
         for (const [day, times] of this.times.entries()) {
+            const active = currentDate?.getDay() === day;
             if (times.length === 0) {
-                openTimes[day] = '';
+                const closedStr = options.showClosedDays ? `${weekDays[day]} ${this.text.closed}` : '';
+                openTimes[day] = active && closedStr ? '[' + closedStr + ']' : closedStr;
                 continue;
             }
-            const active = currentDate?.getDay() === day;
             const timeStr = times
                 .map(time => {
                     const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
                     const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
-                    return from + fromUntilSeparator + until;
+                    return from + this.text.timespanSeparator + until;
                 });
 
             const resultStr = `${weekDays[day]} ${timeStr.join(', ')}`;
@@ -237,12 +247,8 @@ export class OpeningHours {
      */
     private addIfNotExist(optimizedTimes: OpenTimeInternal[]) {
         for (const time of optimizedTimes) {
-            if (this.times.has(time.from.getDay())) {
-                const times = this.times.get(time.from.getDay());
-                times?.push(time);
-            } else {
-                this.times.set(time.from.getDay(), [time]);
-            }
+            const times = this.times[time.from.getDay()];
+            times.push(time);
         }
     }
 
@@ -326,10 +332,9 @@ export class OpeningHours {
      * sort and merge the opening hours times.
      */
     private postOptimize() {
-        for (const [day, times] of this.times.entries()) {
+        for (const times of this.times.values()) {
             this.sort(times);
             this.merge(times);
-            this.times.set(day, times);
         }
     }
 
