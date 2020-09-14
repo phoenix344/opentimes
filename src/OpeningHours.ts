@@ -147,11 +147,15 @@ export class OpeningHours {
         const { currentDate, locales } = options;
         const openTimes = [];
         for (const [day, times] of this.times.entries()) {
+            const active = currentDate?.getDay() === day;
             if (times.length === 0) {
-                openTimes[day] = null;
+                openTimes[day] = options.showClosedDays ? {
+                    active,
+                    day: (this.text.weekDays as string[])[day],
+                    times: []
+                } : null;
                 continue;
             }
-            const active = currentDate?.getDay() === day;
             openTimes[day] = {
                 active,
                 day: (this.text.weekDays as string[])[day],
@@ -164,10 +168,10 @@ export class OpeningHours {
             };
         }
 
-        this.setCurrentDayOnTop(openTimes, options);
+        this.setLeadingDay(openTimes, options);
         const result = [];
         for (const item of openTimes) {
-            if (item || this.options.showClosedDays) {
+            if (item || options.showClosedDays) {
                 result.push(item);
             }
         }
@@ -179,34 +183,19 @@ export class OpeningHours {
      * @param date force the given day at the top of the list
      */
     toString(options: OpeningHoursOptions = {}) {
-        options = { ...this.options, ...options };
-        const { currentDate, locales } = options;
-        const openTimes = [];
-        const weekDays = this.text.weekDays || WeekDaysShort;
-        for (const [day, times] of this.times.entries()) {
-            const active = currentDate?.getDay() === day;
-            if (times.length === 0) {
-                const closedStr = options.showClosedDays ? `${weekDays[day]} ${this.text.closed}` : '';
-                openTimes[day] = active && closedStr ? '[' + closedStr + ']' : closedStr;
-                continue;
-            }
-            const timeStr = times
-                .map(time => {
-                    const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
-                    const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
-                    return from + this.text.timespanSeparator + until;
-                });
-
-            const resultStr = `${weekDays[day]} ${timeStr.join(', ')}`;
-            openTimes[day] = active ? '[' + resultStr + ']' : resultStr;
-        }
-
-        this.setCurrentDayOnTop(openTimes, options);
         const result = [];
-        for (const item of openTimes) {
-            if (item) {
-                result.push(item);
+        for (const obj of this.toLocaleJSON(options)) {
+            let resultStr: string;
+            if (obj.times.length) {
+                resultStr = `${obj.day} ${obj.times.map(time => (
+                    time.from + 
+                    this.text.timespanSeparator + 
+                    time.until
+                )).join(', ')}`;
+            } else {
+                resultStr = `${obj.day} ${this.text.closed}`;
             }
+            result.push(obj.active ? '[' + resultStr + ']' : resultStr);
         }
         return result.join('\n');
     }
@@ -231,7 +220,7 @@ export class OpeningHours {
         );
     }
 
-    private setCurrentDayOnTop<T>(result: T[], options: OpeningHoursOptions) {
+    private setLeadingDay<T>(result: T[], options: OpeningHoursOptions) {
         const { currentDate, currentDayOnTop, weekStart } = options;
         const weekDay = currentDate && currentDayOnTop ? currentDate.getDay() :
             weekStart !== undefined ? weekStart : 0;
