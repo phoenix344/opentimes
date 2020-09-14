@@ -1,8 +1,6 @@
 # OpeningHours
 
-The OpeningHours class is inspired by the [business-hours](https://github.com/stefanoTron/business-hours.js) library. My goal is still a different attempt. I want to use as less external dependencies as possible and provide an easy-to-use syntax.
-
-This library is not intended to be backward compatible with old browsers or older versions of nodejs. I guess it should work if you transpile it with babel.
+A plain typescript/ES6+ opening hours library with no external dependencies.
 
 ## Features
 
@@ -16,15 +14,22 @@ This library is not intended to be backward compatible with old browsers or olde
 
 ## Examples
 
+Initialize your class:
 ```typescript
 import { OpeningHours, WeekDays } from '@myscope/opening-hours';
 
 const oh = new OpeningHours({
-    weekStart: WeekDays.Monday,
-    weekDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-    currentDate: new Date(2020, 8, 15)
+    currentDate: new Date(2020, 8, 15),
+    text: {
+        weekDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+        closed: 'geschlossen',
+        timespanSeparator: ' bis '
+    }
 });
+```
 
+Insert opening hours entries:
+```typescript
 oh.add(WeekDays.Monday, '08:00', '12:30');
 oh.add(WeekDays.Monday, '13:00', '16:00');
 
@@ -40,18 +45,37 @@ oh.add(WeekDays.Friday, '08:00', '12:30');
 oh.add(WeekDays.Friday, '13:00', '16:00');
 
 oh.add(WeekDays.Saturday, '10:00', '14:00');
+```
 
-console.log(oh.toString());
+Alternatively you can add a saved JSON output from `toJSON()`:
+```typescript
+oh.load([
+    { "day": 1, "from": "0800", "until": "1230" },
+    { "day": 1, "from": "1300", "until": "1600" },
+    { "day": 2, "from": "0800", "until": "1230" },
+    { "day": 2, "from": "1300", "until": "1600" },
+    { "day": 3, "from": "0800", "until": "1400" },
+    { "day": 4, "from": "0800", "until": "1230" },
+    { "day": 4, "from": "1300", "until": "1600" },
+    { "day": 5, "from": "0800", "until": "1230" },
+    { "day": 5, "from": "1300", "until": "1600" },
+    { "day": 6, "from": "1000", "until": "1400" }
+]);
+```
+
+To display it as plain text use the `toString()` method:
+```typescript
+oh.toString();
 ```
 
 The current day will be highlighted in brackets `[...]`
 ```
-Mo 08:00 - 12:30, 13:00 - 16:00
-[Di 08:00 - 12:30, 13:00 - 16:00]
-Mi 08:00 - 14:00
-Do 08:00 - 12:30, 13:00 - 16:00
-Fr 08:00 - 12:30, 13:00 - 16:00
-Sa 10:00 - 14:00
+Mo 08:00 bis 12:30, 13:00 bis 16:00
+[Di 08:00 bis 12:30, 13:00 bis 16:00]
+Mi 08:00 bis 14:00
+Do 08:00 bis 12:30, 13:00 bis 16:00
+Fr 08:00 bis 12:30, 13:00 bis 16:00
+Sa 10:00 bis 14:00
 ```
 
 To use the data to customize your UI you can also use the `toLocaleJSON` method:
@@ -131,22 +155,53 @@ oh.toJSON();
 ]
 ```
 
-## Options
+### Different language formats:
+
+```typescript
+oh.toString({ locales: 'zh-CN' });
+```
+
+The output looks like this:
+```
+[tue 上午08:00 - 下午12:30, 下午01:00 - 下午04:00]
+wed 上午08:00 - 下午02:00
+thu 上午08:00 - 下午12:30, 下午01:00 - 下午04:00
+fri 上午08:00 - 下午12:30, 下午01:00 - 下午04:00
+sat 上午10:00 - 下午02:00
+sun closed
+mon 上午08:00 - 下午12:30, 下午01:00 - 下午04:00
+```
+
+# Documentation
+
+## OpeningHoursOptions
+
+Interface for every available class option.
 
 Property | Default | Description
 -------- | ------- | -----------
-`fromUntilSeparator` | `" - "` | The filler for the `toString()` output between from and until.
-`weekStart` | `WeekDays.Sunday` | The start of the week can vary in different countries. The default is sunday, but you can set it to any week day.
-`weekDays` | `["sun", "mon", "tue", "wed", "thu", "fri", "sat"]` | <p>The human readable week days ordered by 0 = Sunday until 6 = Saturday. This will be used in the `toString()` and `toLocaleJSON()` output.</p><p>**In case of internationalization you can add your translations here**</p>
+`weekStart` | `WeekDays.Monday` | The start of the week can vary in different countries. The default is sunday, but you can set it to any week day.
 `currentDate` | `new Date()` | This is the indicator to highlight the opening hours of the current day.
 `currentDayOnTop` | `false` | Orders the output list, so the current day is always on top.
 `locales` | `"de-DE"` | <p>The language tag that represents how the time will be formatted.</p><p>**In case of internationalization it should be defined by the client (i.e. from `navigator.language`**</p>
 `dateTimeFormatOptions` | `{ timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit" }` | <p>The [DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat) configures the time at GMT-2 and only displays hours and minutes in  2-digit format.</p><p>**Should be defined by the business owner to avoid confusion with local and remote timezones.**</p>
+`text` | `OpeningHoursTranslation` | An object of translations for display behavior
 
-## Methods
+## OpeningHoursTranslation
+
+Interface for the output text. In case of internationalization you can add your translations here
+
+Property | Default | Description
+-------- | ------- | -----------
+`weekDays` | `["sun", "mon", "tue", "wed", "thu", "fri", "sat"]` | The human readable week days ordered by 0 = Sunday until 6 = Saturday. This will be used in the `toString()` and `toLocaleJSON()` output.
+`timespanSeparator` | `" - "` | Fills the space between the `from` and `until` time in the `toString()` method.
+`closed` | `"closed"` | Fills the empty value of a day with the closed message in `toString()` method.
+
+## OpeningHours
 
 Method | Parameters | Return | Description
 ------ | ---------- | ------ | -----------
+`constructor` | (optional) `options?: OpeningHoursOptions` || Initializes the class instance
 `add` | `day: WeekDays`<br>`from: string | number | Date`<br>`until: string | number | Date` || <p>Creates a new entry in the OpeningHours object. The interpreter is kind of fuzzy. You can add something like `"0000"` and different interpunctuation like `"12:30"` or `"12.30"` to enter dates.</p><p>It must be in 24hours format. Alternatively you can add a `Date` object, an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) datetime string or a `unix timestamp`.</p>
 `load` | `json: Array<{ day: WeekDays, from: string | number | Date, until: string | number | Date }>` || Loads an array of OpeningHours into the class instance
 `toString` | (optional) `options?: OpeningHoursOptions` | Example: `"mon 08:00 - 12:30, 13:00 - 16:00"` | Creates a string output that represents the opening hours

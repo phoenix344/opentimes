@@ -88,11 +88,16 @@ export class OpeningHours {
     }
 
     constructor(options: OpeningHoursOptions = {}) {
+        // prepare options
         this.options = { ...OpeningHours.defaultOptions, ...options };
+        
+        // prepare translations object
         this.text = {
             ...(OpeningHours.defaultOptions.text || {}),
             ...this.options.text
         } as never;
+
+        // setup a 2D array for 7 days, started by sunday.
         this.times = [[],[],[],[],[],[],[]];
     }
 
@@ -104,7 +109,7 @@ export class OpeningHours {
      */
     add(day: WeekDays, from: DateType, until: DateType) {
         const time = { day, from, until }
-        const optimized = this.preOptimize(time);
+        const optimized = this.optimize(time);
         this.addIfNotExist(optimized);
         this.postOptimize();
     }
@@ -116,7 +121,7 @@ export class OpeningHours {
     load(times: OpenTimeInput[]) {
         this.times.forEach(times => times.splice(0));
         for (const time of times) {
-            const optimized = this.preOptimize(time);
+            const optimized = this.optimize(time);
             this.addIfNotExist(optimized);
         }
         this.postOptimize();
@@ -140,7 +145,6 @@ export class OpeningHours {
 
     /**
      * Creates an array output for opening hours.
-     * @param date force the given day at the top of the list
      */
     toLocaleJSON(options: OpeningHoursOptions = {}): OpenTimeResultOutput[] {
         options = { ...this.options, ...options };
@@ -149,29 +153,36 @@ export class OpeningHours {
         for (const [day, times] of this.times.entries()) {
             const active = currentDate?.getDay() === day;
             if (times.length === 0) {
+                // create an object if showClosedDays is enabled.
                 openTimes[day] = options.showClosedDays ? {
                     active,
                     day: (this.text.weekDays as string[])[day],
                     times: []
                 } : null;
-                continue;
+            } else {
+                // insert opening hours with the correct time format and
+                // add the translation of the current day.
+                openTimes[day] = {
+                    active,
+                    day: (this.text.weekDays as string[])[day],
+                    times: times
+                        .map(time => {
+                            const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
+                            const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
+                            return { from, until };
+                        }),
+                };
             }
-            openTimes[day] = {
-                active,
-                day: (this.text.weekDays as string[])[day],
-                times: times
-                    .map(time => {
-                        const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
-                        const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
-                        return { from, until };
-                    }),
-            };
         }
 
+        // reorder openTimes array to set the currently
+        // leading week day at the top.
         this.setLeadingDay(openTimes, options);
         const result = [];
+
+        // discard empty days
         for (const item of openTimes) {
-            if (item || options.showClosedDays) {
+            if (item) {
                 result.push(item);
             }
         }
@@ -180,11 +191,14 @@ export class OpeningHours {
 
     /**
      * Creates a string output for opening hours.
-     * @param date force the given day at the top of the list
      */
     toString(options: OpeningHoursOptions = {}) {
         const result = [];
-        for (const obj of this.toLocaleJSON(options)) {
+
+        // load output data and format it into a text
+        // output.
+        const openTimes = this.toLocaleJSON(options)
+        for (const obj of openTimes) {
             let resultStr: string;
             if (obj.times.length) {
                 resultStr = `${obj.day} ${obj.times.map(time => (
@@ -200,6 +214,10 @@ export class OpeningHours {
         return result.join('\n');
     }
 
+    /**
+     * Creates a date object from currentDate and the given
+     * opening hours time.
+     */
     private getTimeByCurrentDay(date: Date | [number, number, number, number]) {
         const { currentDate } = this.options;
         const now = currentDate || new Date();
@@ -220,19 +238,22 @@ export class OpeningHours {
         );
     }
 
+    /**
+     * defines the leading week day by
+     * currentDayOnTop and weekStart options.
+     */
     private setLeadingDay<T>(result: T[], options: OpeningHoursOptions) {
         const { currentDate, currentDayOnTop, weekStart } = options;
         const weekDay = currentDate && currentDayOnTop ? currentDate.getDay() :
             weekStart !== undefined ? weekStart : 0;
         if (weekDay > 0) {
-            const prefix = result.splice(weekDay);
-            result.unshift(...prefix);
+            const previous = result.splice(weekDay);
+            result.unshift(...previous);
         }
     }
 
     /**
      * add new time entry if it does not exist
-     * @param optimizedTimes 
      */
     private addIfNotExist(optimizedTimes: OpenTimeInternal[]) {
         for (const time of optimizedTimes) {
@@ -241,18 +262,30 @@ export class OpeningHours {
         }
     }
 
+    /**
+     * this method is the magical unicorn that gets all the funky shit done!
+     * - Interpreting Date, Unix Timestamp, ISO 8601 DateTime => CHECK
+     * - Interpreting fuzzy 24h time strings => CHECK
+     */
     private normalizeTimeString(time: Date | number | string, day: WeekDays, pattern = /\d{1,2}/g) {
         const date = new Date(time);
-        if ('Invalid Date' !== date.toString() && 'string' === typeof time && time.length === 24) {
+        if ('Invalid Date' !== date.toString() && 'string' === typeof time && 24 === time.length) {
             return this.getTimeByCurrentDay(date);
         }
         else if ('string' === typeof time) {
             const matched = time.match(pattern);
             if (matched) {
                 let [hours, minutes, seconds] = matched.slice(0, 3).map(n => parseInt(n));
+                
+                // make sure second has a valid value.
                 if ('undefined' === typeof seconds) {
                     seconds = 0;
                 }
+
+                // I'm zeroing the values 24:00 and 23:59,
+                // because I need a solid foundation to
+                // normalize for after midnight
+
                 if (hours === 24 && minutes === 0) {
                     hours = 0;
                 }
@@ -291,7 +324,7 @@ export class OpeningHours {
      * normalize the end-of-day behavior
      * @param time
      */
-    private preOptimize(time: OpenTimeInput, removePattern?: RegExp): OpenTimeInternal[] {
+    private optimize(time: OpenTimeInput, removePattern?: RegExp): OpenTimeInternal[] {
         const internal: OpenTimeInternal = {
             from: this.normalizeTimeString(time.from, time.day, removePattern),
             until: this.normalizeTimeString(time.until, time.day, removePattern)

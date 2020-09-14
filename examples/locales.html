@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html>
-<title>Current day on top example</title>
+<title>Locales Example</title>
 <meta charset="utf-8">
 <style>
     html {
         font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     }
 </style>
-<h1>Current day on top example</h1>
+<h1>Locales Example</h1>
 
-<h2>Current day on top</h2>
-<pre id="a"></pre>
-
-<h2>Static week start</h2>
-<pre id="b"></pre>
+<h2>de-DE</h2>
+<pre></pre>
 
 <script type="module">
 
@@ -23,10 +20,7 @@
 
     const oh = new OpeningHours({
         currentDate,
-        showClosedDays: true,
-        text: {
-            weekDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-        }
+        showClosedDays: true
     });
 
     oh.load([
@@ -42,22 +36,24 @@
         { "day": 6, "from": "1000", "until": "1400" }
     ]);
 
-    document.querySelector('#a').innerHTML = oh.toString({
+    const locales = ['de-DE', 'en-US', 'en-GB', 'zh-CN', 'ko-KR'];
+
+    let index = 0;
+    document.querySelector('h2').innerHTML = locales[index];
+    document.querySelector('pre').innerHTML = oh.toString({
+        locales: locales[index++],
         currentDayOnTop: true
     });
-    document.querySelector('#b').innerHTML = oh.toString({
-        currentDayOnTop: false
-    });
+
     setInterval(() => {
-        currentDate.setDate(currentDate.getDate() + 1);
-        document.querySelector('#a').innerHTML = oh.toString({
-            currentDayOnTop: true,
-            currentDate
+        document.querySelector('h2').innerHTML = locales[index];
+        document.querySelector('pre').innerHTML = oh.toString({
+            locales: locales[index++],
+            currentDayOnTop: true
         });
-        document.querySelector('#b').innerHTML = oh.toString({
-            currentDayOnTop: false,
-            currentDate
-        });
+        if (index === locales.length) {
+            index = 0;
+        }
     }, 2000);
 </script>
 
