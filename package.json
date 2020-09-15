@@ -23,7 +23,10 @@
     "typescript": "^4.0.2"
   },
   "scripts": {
-    "test": "jest",
-    "lint": "eslint"
+    "start": "tsc -w",
+    "build": "tsc",
+    "lint": "eslint",
+    "test": "jest --watch",
+    "coverage": "jest --coverage"
   }
 }

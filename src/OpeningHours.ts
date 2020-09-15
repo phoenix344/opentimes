@@ -132,14 +132,14 @@ export class OpeningHours {
             // The second value (if exists) in the optimized array is the
             // time after midnight from the next day. This must not be
             // used in this case, so we avoid wrong remove operations.
-            optimized.push(this.optimize(time).shift() as OpenTimeInternal);
+            optimized.push(this.optimize(time).shift());
         }
-        this.cutOut(optimized);
+        this.cutTimespans(optimized);
         this.postOptimize();
     }
 
     cutMulti(removables: Array<OpenTimeRemovableInput>) {
-        const optimizedRemovables: OpenTimeInternal[] = [];
+        const optimizedRemovables = [];
         for (const removable of removables) {
             const days = [];
             const times = [];
@@ -170,12 +170,11 @@ export class OpeningHours {
             }
 
             for (const time of times) {
-                optimizedRemovables.push(this.optimize(time).shift() as OpenTimeInternal);
+                optimizedRemovables.push(this.optimize(time).shift());
             }
         }
 
-        this.cutOut(optimizedRemovables);
-
+        this.cutTimespans(optimizedRemovables);
         this.postOptimize();
     }
 
@@ -277,14 +276,6 @@ export class OpeningHours {
             result.push(obj.active ? '[' + resultStr + ']' : resultStr);
         }
         return result.join('\n');
-    }
-
-    private isOpenTimeInput(obj: unknown): obj is OpenTimeInput {
-        return obj !== null && 'number' === typeof (obj as OpenTimeInput).day;
-    }
-
-    private isOpenTimeRemovableInput(obj: unknown): obj is OpenTimeRemovableInput {
-        return obj !== null && 'undefined' !== typeof (obj as OpenTimeRemovableInput).days;
     }
 
     /**
@@ -429,7 +420,7 @@ export class OpeningHours {
     private postOptimize() {
         for (const times of this.times.values()) {
             this.sort(times);
-            this.merge(times);
+            this.mergeTimespans(times);
         }
     }
 
@@ -445,7 +436,7 @@ export class OpeningHours {
      * merge overlapping times
      * @param times 
      */
-    private merge(times: OpenTimeInternal[]) {
+    private mergeTimespans(times: OpenTimeInternal[]) {
         const tmp = times.splice(0);
         let last!: OpenTimeInternal;
         for (const time of tmp) {
@@ -458,8 +449,11 @@ export class OpeningHours {
         }
     }
 
-    private cutOut(removables: OpenTimeInternal[]) {
-        for (const removable of removables) {
+    private cutTimespans(removables: unknown[]) {
+        for (const removable of removables as OpenTimeInternal[]) {
+            if (!removable) {
+                continue;
+            }
             const times = this.times[removable.from.getDay()];
             const tmp = times.splice(0);
             for (const time of tmp) {

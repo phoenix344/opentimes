@@ -8,9 +8,9 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 - [x] Intl.DateTimeFormat support (for timezone and internationalization)
 - [x] Starting the week on any day (default: Sunday)
 - [x] Merge overlapping times for maintainance
-- [ ] Cut a timespan out of the opening hours (i.e. business hours between 8 AM till 6 PM, pause between 12 and 1 PM)
+- [x] Cut a timespan out of the opening hours (i.e. business hours between 8 AM till 6 PM, pause between 12 and 1 PM)
 - [ ] Add onetime events where business is closed or has different opening hours
-- [ ] Add yearly recurring events where business is closed or has different opening hours
+- [ ] Add recurring events where business is closed or has different opening hours
 
 ## Examples
 
@@ -19,7 +19,8 @@ Initialize your class:
 import { OpeningHours, WeekDays } from '@myscope/opening-hours';
 
 const oh = new OpeningHours({
-    currentDate: new Date(2020, 8, 15),
+    // Predefine a date makes only sense to test the current day
+    //currentDate: new Date(2020, 8, 15),
     text: {
         weekDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
         closed: 'geschlossen',
