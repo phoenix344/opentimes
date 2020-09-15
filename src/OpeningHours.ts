@@ -15,6 +15,14 @@ export declare interface OpenTimeInput extends DateTimeObject {
     day: WeekDays;
 }
 
+export declare interface OpenTimeRemovableInput {
+    day?: WeekDays;
+    days?: WeekDays[];
+    from?: DateType;
+    until?: DateType;
+    spans?: Array<{ from?: DateType, until?: DateType }>;
+}
+
 export declare interface OpenTimeOutput {
     day: WeekDays;
     from: string;
@@ -62,8 +70,8 @@ export class OpeningHours {
         currentDate: new Date(),
         currentDayOnTop: false,
         locales: 'de-DE',
-        dateTimeFormatOptions: { 
-            timeZone: "Europe/Berlin", 
+        dateTimeFormatOptions: {
+            timeZone: "Europe/Berlin",
             hour: "2-digit",
             minute: "2-digit"
         },
@@ -90,7 +98,7 @@ export class OpeningHours {
     constructor(options: OpeningHoursOptions = {}) {
         // prepare options
         this.options = { ...OpeningHours.defaultOptions, ...options };
-        
+
         // prepare translations object
         this.text = {
             ...(OpeningHours.defaultOptions.text || {}),
@@ -98,7 +106,7 @@ export class OpeningHours {
         } as never;
 
         // setup a 2D array for 7 days, started by sunday.
-        this.times = [[],[],[],[],[],[],[]];
+        this.times = [[], [], [], [], [], [], []];
     }
 
     /**
@@ -108,9 +116,66 @@ export class OpeningHours {
      * @param until 
      */
     add(day: WeekDays, from: DateType, until: DateType) {
-        const time = { day, from, until }
+        const time = { day, from, until };
         const optimized = this.optimize(time);
         this.addIfNotExist(optimized);
+        this.postOptimize();
+    }
+
+    cut(days: WeekDays | WeekDays[], from: DateType, until: DateType) {
+        if ('number' === typeof days) {
+            days = [days];
+        }
+        const optimized = [];
+        for (const day of days) {
+            const time = { day, from, until };
+            // The second value (if exists) in the optimized array is the
+            // time after midnight from the next day. This must not be
+            // used in this case, so we avoid wrong remove operations.
+            optimized.push(this.optimize(time).shift() as OpenTimeInternal);
+        }
+        this.cutOut(optimized);
+        this.postOptimize();
+    }
+
+    cutMulti(removables: Array<OpenTimeRemovableInput>) {
+        const optimizedRemovables: OpenTimeInternal[] = [];
+        for (const removable of removables) {
+            const days = [];
+            const times = [];
+            if ('undefined' !== typeof removable.days) {
+                days.push(...removable.days);
+            } else if ('number' === typeof removable.day) {
+                days.push(removable.day);
+            }
+
+            if ('undefined' !== typeof removable.spans) {
+                for (const span of removable.spans) {
+                    for (const day of days) {
+                        times.push({
+                            day,
+                            from: span.from || '0000',
+                            until: span.until || '2359'
+                        });
+                    }
+                }
+            } else {
+                for (const day of days) {
+                    times.push({
+                        day,
+                        from: removable.from || '0000',
+                        until: removable.until || '2359'
+                    });
+                }
+            }
+
+            for (const time of times) {
+                optimizedRemovables.push(this.optimize(time).shift() as OpenTimeInternal);
+            }
+        }
+
+        this.cutOut(optimizedRemovables);
+
         this.postOptimize();
     }
 
@@ -202,8 +267,8 @@ export class OpeningHours {
             let resultStr: string;
             if (obj.times.length) {
                 resultStr = `${obj.day} ${obj.times.map(time => (
-                    time.from + 
-                    this.text.timespanSeparator + 
+                    time.from +
+                    this.text.timespanSeparator +
                     time.until
                 )).join(', ')}`;
             } else {
@@ -212,6 +277,14 @@ export class OpeningHours {
             result.push(obj.active ? '[' + resultStr + ']' : resultStr);
         }
         return result.join('\n');
+    }
+
+    private isOpenTimeInput(obj: unknown): obj is OpenTimeInput {
+        return obj !== null && 'number' === typeof (obj as OpenTimeInput).day;
+    }
+
+    private isOpenTimeRemovableInput(obj: unknown): obj is OpenTimeRemovableInput {
+        return obj !== null && 'undefined' !== typeof (obj as OpenTimeRemovableInput).days;
     }
 
     /**
@@ -276,7 +349,7 @@ export class OpeningHours {
             const matched = time.match(pattern);
             if (matched) {
                 let [hours, minutes, seconds] = matched.slice(0, 3).map(n => parseInt(n));
-                
+
                 // make sure second has a valid value.
                 if ('undefined' === typeof seconds) {
                     seconds = 0;
@@ -314,9 +387,9 @@ export class OpeningHours {
         const hours = date.getHours().toString();
         const minutes = date.getMinutes().toString();
         const seconds = date.getSeconds().toString();
-        return ('00' + hours).slice(hours.length) + 
-            ('00' + minutes).slice(minutes.length) + 
-            (seconds !== '0' ? 
+        return ('00' + hours).slice(hours.length) +
+            ('00' + minutes).slice(minutes.length) +
+            (seconds !== '0' ?
                 ('00' + seconds).slice(seconds.length) : '');
     }
 
@@ -381,6 +454,46 @@ export class OpeningHours {
                 last = time;
             } else if (time.until > last.until) {
                 last.until = time.until;
+            }
+        }
+    }
+
+    private cutOut(removables: OpenTimeInternal[]) {
+        for (const removable of removables) {
+            const times = this.times[removable.from.getDay()];
+            const tmp = times.splice(0);
+            for (const time of tmp) {
+                // no remove operation needed
+                if (time.from > removable.until || time.until < removable.from) {
+                    times.push(time);
+                }
+
+                // cut in two time objects
+                else if (time.from < removable.from && time.until > removable.until) {
+                    times.push({
+                        from: time.from,
+                        until: removable.from
+                    }, {
+                        from: removable.until,
+                        until: time.until
+                    });
+                }
+
+                // cut start time (from)
+                else if (time.from >= removable.from && time.from <= removable.until && time.until > removable.until) {
+                    times.push({
+                        from: removable.until,
+                        until: time.until
+                    });
+                }
+
+                // cut end time (until)
+                else if (time.until <= removable.until && time.until >= removable.from && time.from < removable.from) {
+                    times.push({
+                        from: time.from,
+                        until: removable.from
+                    });
+                }
             }
         }
     }

@@ -206,6 +206,79 @@ describe('add(weekDay, "h:mm", "h:mm") - current date', () => {
     });
 });
 
+describe('cut(weekDay, "h:mm", "h:mm")', () => {
+    it('cut a timespan in two timespans', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.add(oh.WeekDays.Monday, '8:30', '20:00');
+        expect(openingHours.toString()).toBe('mon 08:30 - 20:00');
+        openingHours.cut(oh.WeekDays.Monday, '1430', '1500');
+        expect(openingHours.toString()).toBe('mon 08:30 - 14:30, 15:00 - 20:00');
+    });
+    it('cut start time', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.add(oh.WeekDays.Monday, '8:30', '20:00');
+        expect(openingHours.toString()).toBe('mon 08:30 - 20:00');
+        openingHours.cut(oh.WeekDays.Monday, '0800', '1500');
+        expect(openingHours.toString()).toBe('mon 15:00 - 20:00');
+    });
+    it('cut end time', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.add(oh.WeekDays.Monday, '8:30', '20:00');
+        expect(openingHours.toString()).toBe('mon 08:30 - 20:00');
+        openingHours.cut(oh.WeekDays.Monday, '1430', '2000');
+        expect(openingHours.toString()).toBe('mon 08:30 - 14:30');
+    });
+    it('cut multiple', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.load([
+            { "day": 1, "from": "0800", "until": "1600" },
+            { "day": 2, "from": "0800", "until": "1600" },
+            { "day": 3, "from": "0800", "until": "1600" },
+            { "day": 4, "from": "0800", "until": "1600" },
+            { "day": 5, "from": "0800", "until": "1600" },
+            { "day": 6, "from": "0800", "until": "1600" }
+        ]);
+        expect(openingHours.toString()).toBe(
+            'mon 08:00 - 16:00\n' + 
+            'tue 08:00 - 16:00\n' +
+            'wed 08:00 - 16:00\n' +
+            'thu 08:00 - 16:00\n' +
+            'fri 08:00 - 16:00\n' +
+            'sat 08:00 - 16:00'
+        );
+
+        openingHours.cutMulti([
+            {
+                days: [
+                    oh.WeekDays.Monday,
+                    oh.WeekDays.Tuesday,
+                    oh.WeekDays.Thursday,
+                    oh.WeekDays.Friday
+                ],
+                from: '1230',
+                until: '1300'
+            },
+            { day: oh.WeekDays.Wednesday, from: '1400' },
+            {
+                day: oh.WeekDays.Saturday,
+                spans: [
+                    { until: '1000' },
+                    { from: '1400' }
+                ]
+            }
+        ]);
+
+        expect(openingHours.toString()).toBe(
+            'mon 08:00 - 12:30, 13:00 - 16:00\n' + 
+            'tue 08:00 - 12:30, 13:00 - 16:00\n' +
+            'wed 08:00 - 14:00\n' +
+            'thu 08:00 - 12:30, 13:00 - 16:00\n' +
+            'fri 08:00 - 12:30, 13:00 - 16:00\n' +
+            'sat 10:00 - 14:00'
+        );
+    });
+});
+
 describe('load(Array<{day, from: ISOString, until: ISOString}>) - after current date', () => {
     it('toString', () => {
         const openingHours = new oh.OpeningHours(defaultOptions);
