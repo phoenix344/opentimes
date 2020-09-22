@@ -203,6 +203,9 @@ Property | Default | Description
 Method | Parameters | Return | Description
 ------ | ---------- | ------ | -----------
 `constructor` | (optional) `options?: OpeningHoursOptions` || Initializes the class instance
+`getState` | (optional) `now?: Date` | `OpenState.Open` or `OpenState.Closed` | Returns if the subject business is currently open or closed
+`isOpenSoon` | (optional) `now?: Date`<br>(optional) `expireSeconds?: number` | `boolean` | Informs whether the business will be open soon. `expireSeconds = 1800` (30min)
+`isClosedSoon` | (optional) `now?: Date`<br>(optional) `expireSeconds?: number` | `boolean` | Informs whether the business will be closed soon. `expireSeconds = 1800` (30min)
 `add` | `day: WeekDays`<br>`from: string | number | Date`<br>`until: string | number | Date` || <p>Creates a new entry in the OpeningHours object. The interpreter is kind of fuzzy. You can add something like `"0000"` and different interpunctuation like `"12:30"` or `"12.30"` to enter dates.</p><p>It must be in 24hours format. Alternatively you can add a `Date` object, an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) datetime string or a `unix timestamp`.</p>
 `load` | `json: Array<{ day: WeekDays, from: string | number | Date, until: string | number | Date }>` || Loads an array of OpeningHours into the class instance
 `toString` | (optional) `options?: OpeningHoursOptions` | Example: `"mon 08:00 - 12:30, 13:00 - 16:00"` | Creates a string output that represents the opening hours
