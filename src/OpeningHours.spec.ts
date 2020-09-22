@@ -366,3 +366,69 @@ describe('load(Array<{day, from: ISOString, until: ISOString}>) - current date',
         }]);
     });
 });
+
+describe('state, isOpenSoon(), isClosedSoon()', () => {
+    it('checks states', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.load([
+            { "day": 1, "from": "0830", "until": "1230" },
+            { "day": 1, "from": "1300", "until": "1700" }
+        ]);
+        expect(openingHours.getState(new Date(2020, 8, 7, 8, 29))).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(new Date(2020, 8, 7, 8, 30))).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(new Date(2020, 8, 7, 12, 30))).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(new Date(2020, 8, 7, 12, 31))).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(new Date(2020, 8, 7, 12, 59))).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(new Date(2020, 8, 7, 13, 0))).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(new Date(2020, 8, 7, 17, 0))).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(new Date(2020, 8, 7, 17, 1))).toBe(oh.OpenState.Closed);
+    });
+
+    it('checks if open soon (default: 30min)', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.load([
+            { "day": 1, "from": "0830", "until": "1230" },
+            { "day": 1, "from": "1300", "until": "1700" }
+        ]);
+        expect(openingHours.isOpenSoon(new Date(2020, 8, 7, 8))).toBeTruthy();
+        expect(openingHours.getState(new Date(2020, 8, 7, 8))).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(new Date(2020, 8, 7, 12, 31))).toBeTruthy();
+        expect(openingHours.getState(new Date(2020, 8, 7, 8))).toBe(oh.OpenState.Closed);
+        // already open shouldn't trigger an open soon event
+        expect(openingHours.isOpenSoon(new Date(2020, 8, 7, 9, 30))).toBeFalsy();
+    });
+
+    it('checks if open soon (custom: 15min)', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.load([
+            { "day": 1, "from": "0830", "until": "1230" },
+            { "day": 1, "from": "1300", "until": "1700" }
+        ]);
+        expect(openingHours.isOpenSoon(new Date(2020, 8, 7, 8), 900)).toBeFalsy();
+        expect(openingHours.isOpenSoon(new Date(2020, 8, 7, 8, 15), 900)).toBeTruthy();
+    });
+
+    it('checks if closed soon (default: 30min)', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.load([
+            { "day": 1, "from": "0830", "until": "1230" },
+            { "day": 1, "from": "1300", "until": "1700" }
+        ]);
+        expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 12, 1))).toBeTruthy();
+        expect(openingHours.getState(new Date(2020, 8, 7, 12))).toBe(oh.OpenState.Open);
+        expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 16, 59))).toBeTruthy();
+        expect(openingHours.getState(new Date(2020, 8, 7, 16, 59))).toBe(oh.OpenState.Open);
+        // already closed shouldn't trigger an closed soon event
+        expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 17, 30))).toBeFalsy();
+    });
+
+    it('checks if closed soon (custom: 15min)', () => {
+        const openingHours = new oh.OpeningHours(defaultOptions);
+        openingHours.load([
+            { "day": 1, "from": "0830", "until": "1230" },
+            { "day": 1, "from": "1300", "until": "1700" }
+        ]);
+        expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 16, 30), 900)).toBeFalsy();
+        expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 16, 46), 900)).toBeTruthy();
+    });
+});

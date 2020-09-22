@@ -62,6 +62,11 @@ export enum WeekDays {
     Saturday = 6
 }
 
+export enum OpenState {
+    Closed,
+    Open,
+}
+
 export const WeekDaysShort = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 export class OpeningHours {
@@ -91,10 +96,6 @@ export class OpeningHours {
         break: string;
     };
 
-    get isOpen() {
-        return false;
-    }
-
     constructor(options: OpeningHoursOptions = {}) {
         // prepare options
         this.options = { ...OpeningHours.defaultOptions, ...options };
@@ -109,11 +110,54 @@ export class OpeningHours {
         this.times = [[], [], [], [], [], [], []];
     }
 
+    getState(now = new Date()) {
+        const day = now.getDay() as number;
+        for (const time of this.times[day]) {
+            if (time.from <= now && time.until >= now) {
+                return OpenState.Open;
+            }
+        }
+        return OpenState.Closed;
+    }
+
+    /**
+     * Check if the subject is opening soon. Default is 30 minutes or
+     * 1800 seconds.
+     */
+    isOpenSoon(now = new Date(), elapseSeconds?: number) {
+        const curr = now.getTime()
+        const soon = curr + ((elapseSeconds || 1800) * 1000);
+        const day = now.getDay() as number;
+        for (const time of this.times[day]) {
+            const from = time.from.getTime();
+            const until = time.until.getTime();
+            if ((from > curr || until < curr) && from <= soon && until >= soon) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the subject is closing soon. Default is 30 minutes or
+     * 1800 seconds.
+     */
+    isClosedSoon(now = new Date(), elapseSeconds?: number) {
+        const curr = now.getTime()
+        const soon = curr + ((elapseSeconds || 1800) * 1000);
+        const day = now.getDay() as number;
+        for (const time of this.times[day]) {
+            const from = time.from.getTime();
+            const until = time.until.getTime();
+            if ((from > soon || until < soon) && from <= curr && until >= curr) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * add a single time object and optimize it
-     * @param day 
-     * @param from 
-     * @param until 
      */
     add(day: WeekDays, from: DateType, until: DateType) {
         const time = { day, from, until };
@@ -122,6 +166,9 @@ export class OpeningHours {
         this.postOptimize();
     }
 
+    /**
+     * Cut a timespan out of the opening hours.
+     */
     cut(days: WeekDays | WeekDays[], from: DateType, until: DateType) {
         if ('number' === typeof days) {
             days = [days];
@@ -138,6 +185,9 @@ export class OpeningHours {
         this.postOptimize();
     }
 
+    /**
+     * Cut multiple chunks out of the opening hours.
+     */
     cutMulti(removables: Array<OpenTimeRemovableInput>) {
         const optimizedRemovables = [];
         for (const removable of removables) {
@@ -180,7 +230,6 @@ export class OpeningHours {
 
     /**
      * loading a list of time objects and optimize them
-     * @param times 
      */
     load(times: OpenTimeInput[]) {
         this.times.forEach(times => times.splice(0));
@@ -191,6 +240,9 @@ export class OpeningHours {
         this.postOptimize();
     }
 
+    /**
+     * Creates normalized JSON format.
+     */
     toJSON() {
         const result: OpenTimeOutput[] = [];
         for (const [day, times] of this.times.entries()) {
@@ -213,6 +265,7 @@ export class OpeningHours {
     toLocaleJSON(options: OpeningHoursOptions = {}): OpenTimeResultOutput[] {
         options = { ...this.options, ...options };
         const { currentDate, locales } = options;
+        const { weekDays } = { ...this.text,  ...(options.text || {}) };
         const openTimes = [];
         for (const [day, times] of this.times.entries()) {
             const active = currentDate?.getDay() === day;
@@ -220,7 +273,7 @@ export class OpeningHours {
                 // create an object if showClosedDays is enabled.
                 openTimes[day] = options.showClosedDays ? {
                     active,
-                    day: (this.text.weekDays as string[])[day],
+                    day: weekDays[day],
                     times: []
                 } : null;
             } else {
@@ -228,11 +281,11 @@ export class OpeningHours {
                 // add the translation of the current day.
                 openTimes[day] = {
                     active,
-                    day: (this.text.weekDays as string[])[day],
+                    day: weekDays[day],
                     times: times
                         .map(time => {
-                            const from = time.from.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
-                            const until = time.until.toLocaleTimeString(locales, this.options.dateTimeFormatOptions);
+                            const from = time.from.toLocaleTimeString(locales, options.dateTimeFormatOptions);
+                            const until = time.until.toLocaleTimeString(locales, options.dateTimeFormatOptions);
                             return { from, until };
                         }),
                 };
@@ -257,6 +310,10 @@ export class OpeningHours {
      * Creates a string output for opening hours.
      */
     toString(options: OpeningHoursOptions = {}) {
+        const {
+            timespanSeparator,
+            closed
+        } = { ...this.text,  ...(options.text || {}) };
         const result = [];
 
         // load output data and format it into a text
@@ -267,11 +324,11 @@ export class OpeningHours {
             if (obj.times.length) {
                 resultStr = `${obj.day} ${obj.times.map(time => (
                     time.from +
-                    this.text.timespanSeparator +
+                    timespanSeparator +
                     time.until
                 )).join(', ')}`;
             } else {
-                resultStr = `${obj.day} ${this.text.closed}`;
+                resultStr = `${obj.day} ${closed}`;
             }
             result.push(obj.active ? '[' + resultStr + ']' : resultStr);
         }
@@ -367,6 +424,9 @@ export class OpeningHours {
         throw new Error(`Invalid time string: ${time}`);
     }
 
+    /**
+     * Make sure the time until midnight is at 23:59
+     */
     private normalizeUntilDate(date: Date) {
         if (date.getHours() === 0 && date.getMinutes() === 0) {
             date.setHours(23);
@@ -374,6 +434,9 @@ export class OpeningHours {
         }
     }
 
+    /**
+     * Create a simplified 24h time format without any separator.
+     */
     private convertToSimpleFormat(date: Date) {
         const hours = date.getHours().toString();
         const minutes = date.getMinutes().toString();
@@ -385,8 +448,8 @@ export class OpeningHours {
     }
 
     /**
-     * normalize the end-of-day behavior
-     * @param time
+     * Optimize incoming timespans, convert them to Date format and handle timespans
+     * that extend beyond midnight.
      */
     private optimize(time: OpenTimeInput, removePattern?: RegExp): OpenTimeInternal[] {
         const internal: OpenTimeInternal = {
@@ -415,7 +478,7 @@ export class OpeningHours {
     }
 
     /**
-     * sort and merge the opening hours times.
+     * Executes sort and merge functions to every timespan on every weekday.
      */
     private postOptimize() {
         for (const times of this.times.values()) {
@@ -425,16 +488,14 @@ export class OpeningHours {
     }
 
     /**
-     * sort time objects
-     * @param times 
+     * Sort the timespans by start time.
      */
     private sort(times: OpenTimeInternal[]) {
         times.sort((a, b) => a.from < b.from || a.until < b.from ? -1 : a.from > b.until ? 1 : 0);
     }
 
     /**
-     * merge overlapping times
-     * @param times 
+     * Tool to merge multiple overlapping timespans.
      */
     private mergeTimespans(times: OpenTimeInternal[]) {
         const tmp = times.splice(0);
@@ -449,6 +510,9 @@ export class OpeningHours {
         }
     }
 
+    /**
+     * Tool to remove parts of timespans or complete timespans.
+     */
     private cutTimespans(removables: unknown[]) {
         for (const removable of removables as OpenTimeInternal[]) {
             if (!removable) {
