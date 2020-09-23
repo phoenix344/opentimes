@@ -425,7 +425,7 @@ export class OpeningHours {
     }
 
     /**
-     * Make sure the time until midnight is at 23:59
+     * Make sure the until time for midnight is 23:59
      */
     private normalizeUntilDate(date: Date) {
         if (date.getHours() === 0 && date.getMinutes() === 0) {

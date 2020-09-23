@@ -9,8 +9,12 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 - [x] Starting the week on any day (default: Sunday)
 - [x] Merge overlapping times for maintainance
 - [x] Cut a timespan out of the opening hours (i.e. business hours between 8 AM till 6 PM, pause between 12 and 1 PM)
-- [ ] Add onetime events where business is closed or has different opening hours
-- [ ] Add recurring events where business is closed or has different opening hours
+- [x] Provide functions to get the current open state
+- [x] Provide functions to get an indicator for open/close soon
+
+## Note
+
+I consider the state of development as done. There are other features I could add, but this is better placed in a different project. If you find any issues, let me know or send a merge-request. I won't add new features.
 
 ## Examples
 
@@ -184,8 +188,8 @@ Property | Default | Description
 `weekStart` | `WeekDays.Monday` | The start of the week can vary in different countries. The default is sunday, but you can set it to any week day.
 `currentDate` | `new Date()` | This is the indicator to highlight the opening hours of the current day.
 `currentDayOnTop` | `false` | Orders the output list, so the current day is always on top.
-`locales` | `"de-DE"` | <p>The language tag that represents how the time will be formatted.</p><p>**In case of internationalization it should be defined by the client (i.e. from `navigator.language`**</p>
-`dateTimeFormatOptions` | `{ timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit" }` | <p>The [DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat) configures the time at GMT-2 and only displays hours and minutes in  2-digit format.</p><p>**Should be defined by the business owner to avoid confusion with local and remote timezones.**</p>
+`locales` | `"de-DE"` | <p>The language tag that represents how the time will be formatted.</p><p>**In case of internationalization it should be defined by the client (i.e. from `navigator.language`)**</p>
+`dateTimeFormatOptions` | `{ timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit" }` | <p>The [DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat) configures the time at GMT-2 and only displays hours and minutes in 2-digit format.</p><p>**Should be defined by the business owner to avoid confusion with local and remote timezones.**</p>
 `text` | `OpeningHoursTranslation` | An object of translations for display behavior
 
 ## OpeningHoursTranslation
