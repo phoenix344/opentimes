@@ -1,5 +1,5 @@
 {
-  "name": "opening-hours",
+  "name": "@phoenix344/opening-hours",
   "version": "1.0.0",
   "main": "lib/OpeningHours.js",
   "module": "lib/OpeningHours.js",
@@ -27,6 +27,7 @@
     "build": "tsc",
     "lint": "eslint",
     "test": "jest --watch",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "prepublish": "npm run build && npm run lint && npm test"
   }
 }
