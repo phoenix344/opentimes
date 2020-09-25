@@ -1,6 +1,6 @@
 {
   "name": "@phoenix344/opening-hours",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "lib/OpeningHours.js",
   "module": "lib/OpeningHours.js",
   "types": "lib/OpeningHours.d.ts",
