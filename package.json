@@ -32,6 +32,6 @@
     "lint": "eslint",
     "test": "jest --watch",
     "coverage": "jest --coverage",
-    "prepublish": "npm run build && npm run lint && npm test"
+    "prepublish": "tsc && eslint && jest"
   }
 }
