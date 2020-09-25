@@ -20,7 +20,7 @@ I consider the state of development as done. There are other features I could ad
 
 Initialize your class:
 ```typescript
-import { OpeningHours, WeekDays } from '@myscope/opening-hours';
+import { OpeningHours, WeekDays } from '@phoenix344/opening-hours';
 
 const oh = new OpeningHours({
     // Predefine a date makes only sense to test the current day
