@@ -4,6 +4,7 @@
   "main": "lib/OpeningHours.js",
   "module": "lib/OpeningHours.js",
   "types": "lib/OpeningHours.d.ts",
+  "private": false,
   "files": [
     "lib/**/*.js",
     "lib/**/*.d.ts",
