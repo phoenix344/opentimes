@@ -1,9 +1,9 @@
 {
   "name": "@phoenix344/opening-hours",
-  "version": "1.0.2",
-  "main": "lib/OpeningHours.js",
-  "module": "lib/OpeningHours.js",
-  "types": "lib/OpeningHours.d.ts",
+  "version": "1.0.3",
+  "main": "lib/cjs/OpeningHours.js",
+  "module": "lib/esm/OpeningHours.js",
+  "types": "lib/esm/OpeningHours.d.ts",
   "private": false,
   "files": [
     "lib/**/*.js",
@@ -11,7 +11,14 @@
     "src/**/*.ts"
   ],
   "license": "MIT",
-  "keywords": ["opening hours", "open time", "business hours", "opening", "business", "hours"],
+  "keywords": [
+    "opening hours",
+    "open time",
+    "business hours",
+    "opening",
+    "business",
+    "hours"
+  ],
   "author": {
     "email": "phoenix34@protonmail.com",
     "name": "phoenix34",
@@ -24,20 +31,30 @@
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "@babel/preset-typescript": "^7.10.4",
+    "@rollup/plugin-babel": "^5.2.1",
     "@types/jest": "^26.0.13",
     "@typescript-eslint/eslint-plugin": "^4.1.0",
     "@typescript-eslint/parser": "^4.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^7.8.1",
     "eslint-plugin-jest": "^24.0.0",
     "jest": "^26.4.2",
+    "rollup": "^2.28.2",
+    "rollup-plugin-analyzer": "^3.3.0",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-ts-paths-resolve": "^1.3.0",
+    "rollup-plugin-typescript2": "^0.27.3",
+    "ts-jest": "^26.4.0",
     "typescript": "^4.0.2"
   },
   "scripts": {
-    "start": "tsc -w",
-    "build": "tsc",
+    "start": "rollup -c rollup.config.js -w",
+    "build": "BUILD=production rollup -c rollup.config.js",
     "lint": "eslint",
     "test": "jest --watch",
     "coverage": "jest --coverage",
-    "prepublish": "tsc && eslint && jest"
+    "prepublish": "BUILD=production rollup -c rollup.config.js && eslint && jest"
   }
 }
