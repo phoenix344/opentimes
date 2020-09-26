@@ -11,7 +11,7 @@ dotenv.config();
 
 const isProduction = process.env.BUILD === 'production';
 
-const plugins = isProduction ? [terser({ ecma: 2015 }), analyzer({ summaryOnly: true })] : [];
+const plugins = isProduction ? [terser(), analyzer({ summaryOnly: true })] : [];
 const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 
 export default [
@@ -53,6 +53,7 @@ export default [
             babel({
                 extensions,
                 babelHelpers: 'bundled',
+                presets: ['@babel/preset-env', '@babel/typescript']
             }),
             ...plugins,
         ]
