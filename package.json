@@ -1,9 +1,9 @@
 {
   "name": "@phoenix344/opening-hours",
-  "version": "1.0.3",
-  "main": "lib/cjs/OpeningHours.js",
-  "module": "lib/esm/OpeningHours.js",
-  "types": "lib/esm/OpeningHours.d.ts",
+  "version": "1.0.4",
+  "main": "lib/es6/cjs/OpeningHours.js",
+  "module": "lib/es6/esm/OpeningHours.js",
+  "types": "lib/es6/esm/OpeningHours.d.ts",
   "private": false,
   "files": [
     "lib/**/*.js",
@@ -56,5 +56,6 @@
     "test": "jest --watch",
     "coverage": "jest --coverage",
     "prepublish": "BUILD=production rollup -c rollup.config.js && eslint && jest"
-  }
+  },
+  "dependencies": {}
 }

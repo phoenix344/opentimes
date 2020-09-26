@@ -11,45 +11,87 @@ dotenv.config();
 
 const isProduction = process.env.BUILD === 'production';
 
-const plugins = isProduction ? [ terser({ ecma: 2015 }), analyzer({ summaryOnly: true }) ] : [];
+const plugins = isProduction ? [terser({ ecma: 2015 }), analyzer({ summaryOnly: true })] : [];
+const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 
 export default [
     {
         input: 'src/OpeningHours.ts',
         output: [
             {
-                file: 'lib/cjs/OpeningHours.js',
+                file: 'lib/es6/cjs/OpeningHours.js',
                 format: 'cjs',
                 exports: 'named',
             },
             {
-                file: 'lib/esm/OpeningHours.js',
+                file: 'lib/es6/esm/OpeningHours.js',
                 format: 'es',
                 exports: 'named',
             },
             {
-                file: 'lib/iife/OpeningHours.js',
+                file: 'lib/es6/iife/OpeningHours.js',
                 format: 'iife',
                 name: 'p34',
                 exports: 'named',
             },
         ],
         plugins: [
-            cleaner(['lib', 'lib/cjs/', 'lib/esm/', 'lib/iife/']),
+            cleaner(['lib/es6', 'lib/es6/cjs/', 'lib/es6/esm/', 'lib/es6/iife/']),
             resolve({
-                extensions: ['.js', '.jsx', '.ts', '.tsx'],
+                extensions,
                 preferBuiltins: true
             }),
+            tspaths({ logLevel: 'warn', tsConfigPath: 'tsconfig.json' }),
             typescript({
                 abortOnError: true,
                 tsConfigPath: 'tsconfig.json',
                 tsconfigOverride: {
                     declaration: true,
-                    declarationDir: 'lib/types'
+                    declarationDir: 'lib/es6/types'
                 }
             }),
+            babel({
+                extensions,
+                babelHelpers: 'bundled',
+            }),
+            ...plugins,
+        ]
+    },
+    {
+        input: 'src/OpeningHours.ts',
+        output: [
+            {
+                file: 'lib/esnext/cjs/OpeningHours.js',
+                format: 'cjs',
+                exports: 'named',
+            },
+            {
+                file: 'lib/esnext/esm/OpeningHours.js',
+                format: 'es',
+                exports: 'named',
+            },
+            {
+                file: 'lib/esnext/iife/OpeningHours.js',
+                format: 'iife',
+                name: 'p34',
+                exports: 'named',
+            },
+        ],
+        plugins: [
+            cleaner(['lib/esnext/', 'lib/esnext/cjs/', 'lib/esnext/esm/', 'lib/esnext/iife/']),
+            resolve({
+                extensions,
+                preferBuiltins: true
+            }),
             tspaths({ logLevel: 'warn', tsConfigPath: 'tsconfig.json' }),
-            babel({ babelrc: true, babelHelpers: 'bundled' }),
+            typescript({
+                abortOnError: true,
+                tsConfigPath: 'tsconfig.json',
+                tsconfigOverride: {
+                    declaration: true,
+                    declarationDir: 'lib/esnext/types'
+                }
+            }),
             ...plugins,
         ]
     }
