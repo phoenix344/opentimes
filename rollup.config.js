@@ -49,7 +49,20 @@ export default [
                 }
             }),
             tspaths({ logLevel: 'warn', tsConfigPath: 'tsconfig.json' }),
-            babel({ babelrc: true, babelHelpers: 'bundled' }),
+            babel({
+                babelrc: true,
+                babelHelpers: 'runtime',
+                overrides: {
+                    plugins: [
+                        ["@babel/transforms-runtime", {
+                            corejs: true,
+                            helpers: true,
+                            regenerator: true,
+                            useESModules: false
+                        }]
+                    ]
+                }
+            }),
             ...plugins,
         ]
     }
