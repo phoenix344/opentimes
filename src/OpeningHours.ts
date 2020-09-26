@@ -557,3 +557,7 @@ export class OpeningHours {
     }
 
 }
+
+export default function createOpeningHours(options?: OpeningHoursOptions) {
+    return new OpeningHours(options)
+}
