@@ -119,8 +119,7 @@ export class OpeningHours {
         const current = this.normalizeLocalDate(now, timeZone);
         const day = current.getDay();
         for (const time of this.times[day]) {
-            const from = this.normalizeLocalDate(time.from);
-            const until = this.normalizeLocalDate(time.until);
+            const { from, until } = time;
             if (from <= current && until >= current) {
                 return OpenState.Open;
             }
@@ -143,8 +142,7 @@ export class OpeningHours {
         const soon = this.normalizeLocalDate(now, timeZone);
         soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
         for (const time of this.times[day]) {
-            const from = this.normalizeLocalDate(time.from);
-            const until = this.normalizeLocalDate(time.until);
+            const { from, until } = time;
             if ((from > current || until < current) && from <= soon && until >= soon) {
                 return true;
             }
@@ -167,8 +165,7 @@ export class OpeningHours {
         const soon = this.normalizeLocalDate(now, timeZone);
         soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
         for (const time of this.times[day]) {
-            const from = this.normalizeLocalDate(time.from);
-            const until = this.normalizeLocalDate(time.until);
+            const { from, until } = time;
             if ((from > soon || until < soon) && from <= current && until >= current) {
                 return true;
             }
