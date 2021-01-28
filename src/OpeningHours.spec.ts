@@ -121,7 +121,7 @@ describe('options test', () => {
         openingHours.add(oh.WeekDays.Monday, '0330', '0500');
         openingHours.add(oh.WeekDays.Monday, '0700', '0800');
         openingHours.add(oh.WeekDays.Monday, '0600', '0900');
-        
+
         expect(openingHours.toString()).toBe(
             'mon 00:00 - 02:00, 03:00 - 05:00, 06:00 - 09:00'
         );
@@ -239,7 +239,7 @@ describe('cut(weekDay, "h:mm", "h:mm")', () => {
             { "day": 6, "from": "0800", "until": "1600" }
         ]);
         expect(openingHours.toString()).toBe(
-            'mon 08:00 - 16:00\n' + 
+            'mon 08:00 - 16:00\n' +
             'tue 08:00 - 16:00\n' +
             'wed 08:00 - 16:00\n' +
             'thu 08:00 - 16:00\n' +
@@ -269,7 +269,7 @@ describe('cut(weekDay, "h:mm", "h:mm")', () => {
         ]);
 
         expect(openingHours.toString()).toBe(
-            'mon 08:00 - 12:30, 13:00 - 16:00\n' + 
+            'mon 08:00 - 12:30, 13:00 - 16:00\n' +
             'tue 08:00 - 12:30, 13:00 - 16:00\n' +
             'wed 08:00 - 14:00\n' +
             'thu 08:00 - 12:30, 13:00 - 16:00\n' +
@@ -430,5 +430,121 @@ describe('state, isOpenSoon(), isClosedSoon()', () => {
         ]);
         expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 16, 30), 900)).toBeFalsy();
         expect(openingHours.isClosedSoon(new Date(2020, 8, 7, 16, 46), 900)).toBeTruthy();
+    });
+});
+
+describe('timezone / daylight saving time', () => {
+    it('TimeZone/DST Check: Berlin: Mar 27, +01:00', () => {
+        const winterTime = '2021-03-27T10:30:00+0100';
+        const beforeFrom = new Date(winterTime);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+
+        const openTime = new Date(winterTime);
+        openTime.setMinutes(openTime.getMinutes() + 60);
+
+        const afterUntil = new Date(winterTime);
+        afterUntil.setMinutes(afterUntil.getMinutes() + 121);
+
+        const openingHours = new oh.OpeningHours({
+            currentDate: new Date(winterTime),
+            locales: 'de-DE',
+            dateTimeFormatOptions: {
+                timeZone: 'Europe/Berlin',
+                hour: '2-digit',
+                minute: '2-digit',
+            }
+        });
+
+        openingHours.add(oh.WeekDays.Saturday, '10:30', '12:30');
+        expect(openingHours.toString()).toBe('[sat 10:30 - 12:30]');
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+    });
+
+    it('TimeZone/DST Check: Berlin: Mar 28, +02:00', () => {
+        const summerTime = '2021-03-28T10:30:00+0200';
+        const beforeFrom = new Date(summerTime);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+
+        const openTime = new Date(summerTime);
+        openTime.setMinutes(openTime.getMinutes() + 60);
+
+        const afterUntil = new Date(summerTime);
+        afterUntil.setMinutes(afterUntil.getMinutes() + 121);
+
+        const openingHours = new oh.OpeningHours({
+            currentDate: new Date(summerTime),
+            locales: 'de-DE',
+            dateTimeFormatOptions: {
+                timeZone: 'Europe/Berlin',
+                hour: '2-digit',
+                minute: '2-digit',
+            }
+        });
+
+        openingHours.add(oh.WeekDays.Sunday, '10:30', '12:30');
+        expect(openingHours.toString()).toBe('[sun 10:30 - 12:30]');
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+    });
+
+    it('TimeZone/DST Check: Melbourne: Apr 3, +11:00', () => {
+        const winterTime = '2021-04-03T10:30:00+1100';
+        const beforeFrom = new Date(winterTime);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+
+        const openTime = new Date(winterTime);
+        openTime.setMinutes(openTime.getMinutes() + 60);
+
+        const afterUntil = new Date(winterTime);
+        afterUntil.setMinutes(afterUntil.getMinutes() + 121);
+
+        const openingHours = new oh.OpeningHours({
+            currentDate: new Date(winterTime),
+            locales: 'en-AU',
+            dateTimeFormatOptions: {
+                timeZone: 'Australia/Melbourne',
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit',
+            }
+        });
+
+        openingHours.add(oh.WeekDays.Saturday, '10:30', '12:30');
+        expect(openingHours.toString()).toBe('[sat 10:30 am - 12:30 pm]');
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+    });
+
+    it('TimeZone/DST Check: Melbourne: Apr 4, +10:00', () => {
+        const summerTime = '2021-04-04T10:30:00+1000';
+        const beforeFrom = new Date(summerTime);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+
+        const openTime = new Date(summerTime);
+        openTime.setMinutes(openTime.getMinutes() + 60);
+
+        const afterUntil = new Date(summerTime);
+        afterUntil.setMinutes(afterUntil.getMinutes() + 121);
+
+        const openingHours = new oh.OpeningHours({
+            currentDate: new Date(summerTime),
+            locales: 'en-AU',
+            dateTimeFormatOptions: {
+                timeZone: 'Australia/Melbourne',
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit',
+            }
+        });
+
+        openingHours.add(oh.WeekDays.Sunday, '10:30', '12:30');
+        expect(openingHours.toString()).toBe('[sun 10:30 am - 12:30 pm]');
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
     });
 });
