@@ -433,20 +433,14 @@ describe('state, isOpenSoon(), isClosedSoon()', () => {
     });
 });
 
-describe('timezone / daylight saving time', () => {
-    it('TimeZone/DST Check: Berlin: Mar 27, +01:00', () => {
-        const winterTime = '2021-03-27T10:30:00+0100';
-        const beforeFrom = new Date(winterTime);
-        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+describe('TimeZone/DST Check: Berlin: Mar 27, +01:00', () => {
+    let currentDate: string;
+    let openingHours: oh.OpeningHours;
 
-        const openTime = new Date(winterTime);
-        openTime.setMinutes(openTime.getMinutes() + 60);
-
-        const afterUntil = new Date(winterTime);
-        afterUntil.setMinutes(afterUntil.getMinutes() + 121);
-
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(winterTime),
+    beforeEach(() => {
+        currentDate = '2021-03-27T10:30:00+0100';
+        openingHours = new oh.OpeningHours({
+            currentDate: new Date(currentDate),
             locales: 'de-DE',
             dateTimeFormatOptions: {
                 timeZone: 'Europe/Berlin',
@@ -454,27 +448,60 @@ describe('timezone / daylight saving time', () => {
                 minute: '2-digit',
             }
         });
-
         openingHours.add(oh.WeekDays.Saturday, '10:30', '12:30');
+    });
+
+    it('current day is active', () => {
+        const beforeFrom = new Date(currentDate);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
         expect(openingHours.toString()).toBe('[sat 10:30 - 12:30]');
-        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
-        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
-        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
     });
 
-    it('TimeZone/DST Check: Berlin: Mar 28, +02:00', () => {
-        const summerTime = '2021-03-28T10:30:00+0200';
-        const beforeFrom = new Date(summerTime);
+    it('getState() = Closed, isOpenSoon() = true, isClosedSoon() = false', () => {
+        const beforeFrom = new Date(currentDate);
         beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
 
-        const openTime = new Date(summerTime);
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(beforeFrom)).toBeTruthy();
+        expect(openingHours.isClosedSoon(beforeFrom)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const openTime = new Date(currentDate);
         openTime.setMinutes(openTime.getMinutes() + 60);
 
-        const afterUntil = new Date(summerTime);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(openTime)).toBeFalsy();
+        expect(openingHours.isClosedSoon(openTime)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = true', () => {
+        const beforeUntil = new Date(currentDate);
+        beforeUntil.setMinutes(beforeUntil.getMinutes() + 119);
+
+        expect(openingHours.getState(beforeUntil)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(beforeUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(beforeUntil)).toBeTruthy();
+    });
+
+    it('getState() = Closed, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const afterUntil = new Date(currentDate);
         afterUntil.setMinutes(afterUntil.getMinutes() + 121);
 
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(summerTime),
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(afterUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(afterUntil)).toBeFalsy();
+    });
+});
+
+describe('TimeZone/DST Check: Berlin: Mar 28, +02:00', () => {
+    let currentDate: string;
+    let openingHours: oh.OpeningHours;
+
+    beforeEach(() => {
+        currentDate = '2021-03-28T10:30:00+0200';
+        openingHours = new oh.OpeningHours({
+            currentDate: new Date(currentDate),
             locales: 'de-DE',
             dateTimeFormatOptions: {
                 timeZone: 'Europe/Berlin',
@@ -482,27 +509,60 @@ describe('timezone / daylight saving time', () => {
                 minute: '2-digit',
             }
         });
-
         openingHours.add(oh.WeekDays.Sunday, '10:30', '12:30');
+    });
+
+    it('current day is active', () => {
+        const beforeFrom = new Date(currentDate);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
         expect(openingHours.toString()).toBe('[sun 10:30 - 12:30]');
-        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
-        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
-        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
     });
 
-    it('TimeZone/DST Check: Melbourne: Apr 3, +11:00', () => {
-        const winterTime = '2021-04-03T10:30:00+1100';
-        const beforeFrom = new Date(winterTime);
+    it('getState() = Closed, isOpenSoon() = true, isClosedSoon() = false', () => {
+        const beforeFrom = new Date(currentDate);
         beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
 
-        const openTime = new Date(winterTime);
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(beforeFrom)).toBeTruthy();
+        expect(openingHours.isClosedSoon(beforeFrom)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const openTime = new Date(currentDate);
         openTime.setMinutes(openTime.getMinutes() + 60);
 
-        const afterUntil = new Date(winterTime);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(openTime)).toBeFalsy();
+        expect(openingHours.isClosedSoon(openTime)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = true', () => {
+        const beforeUntil = new Date(currentDate);
+        beforeUntil.setMinutes(beforeUntil.getMinutes() + 119);
+
+        expect(openingHours.getState(beforeUntil)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(beforeUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(beforeUntil)).toBeTruthy();
+    });
+
+    it('getState() = Closed, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const afterUntil = new Date(currentDate);
         afterUntil.setMinutes(afterUntil.getMinutes() + 121);
 
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(winterTime),
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(afterUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(afterUntil)).toBeFalsy();
+    });
+});
+
+describe('TimeZone/DST Check: Melbourne: Apr 3, +11:00', () => {
+    let currentDate: string;
+    let openingHours: oh.OpeningHours;
+
+    beforeEach(() => {
+        currentDate = '2021-04-03T10:30:00+1100';
+        openingHours = new oh.OpeningHours({
+            currentDate: new Date(currentDate),
             locales: 'en-AU',
             dateTimeFormatOptions: {
                 timeZone: 'Australia/Melbourne',
@@ -511,27 +571,60 @@ describe('timezone / daylight saving time', () => {
                 minute: '2-digit',
             }
         });
-
         openingHours.add(oh.WeekDays.Saturday, '10:30', '12:30');
-        expect(openingHours.toString()).toBe('[sat 10:30 am - 12:30 pm]');
-        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
-        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
-        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
     });
 
-    it('TimeZone/DST Check: Melbourne: Apr 4, +10:00', () => {
-        const summerTime = '2021-04-04T10:30:00+1000';
-        const beforeFrom = new Date(summerTime);
+    it('current day is active', () => {
+        const beforeFrom = new Date(currentDate);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+        expect(openingHours.toString()).toBe('[sat 10:30 am - 12:30 pm]');
+    });
+
+    it('getState() = Closed, isOpenSoon() = true, isClosedSoon() = false', () => {
+        const beforeFrom = new Date(currentDate);
         beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
 
-        const openTime = new Date(summerTime);
+        expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(beforeFrom)).toBeTruthy();
+        expect(openingHours.isClosedSoon(beforeFrom)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const openTime = new Date(currentDate);
         openTime.setMinutes(openTime.getMinutes() + 60);
 
-        const afterUntil = new Date(summerTime);
+        expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(openTime)).toBeFalsy();
+        expect(openingHours.isClosedSoon(openTime)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = true', () => {
+        const beforeUntil = new Date(currentDate);
+        beforeUntil.setMinutes(beforeUntil.getMinutes() + 119);
+
+        expect(openingHours.getState(beforeUntil)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(beforeUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(beforeUntil)).toBeTruthy();
+    });
+
+    it('getState() = Closed, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const afterUntil = new Date(currentDate);
         afterUntil.setMinutes(afterUntil.getMinutes() + 121);
 
-        const openingHours = new oh.OpeningHours({
-            currentDate: new Date(summerTime),
+        expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(afterUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(afterUntil)).toBeFalsy();
+    });
+});
+
+describe('TimeZone/DST Check: Melbourne: Apr 4, +10:00', () => {
+    let currentDate: string;
+    let openingHours: oh.OpeningHours;
+
+    beforeEach(() => {
+        currentDate = '2021-04-04T10:30:00+1000';
+        openingHours = new oh.OpeningHours({
+            currentDate: new Date(currentDate),
             locales: 'en-AU',
             dateTimeFormatOptions: {
                 timeZone: 'Australia/Melbourne',
@@ -540,11 +633,48 @@ describe('timezone / daylight saving time', () => {
                 minute: '2-digit',
             }
         });
-
         openingHours.add(oh.WeekDays.Sunday, '10:30', '12:30');
+    });
+
+    it('current day is active', () => {
+        const beforeFrom = new Date(currentDate);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
         expect(openingHours.toString()).toBe('[sun 10:30 am - 12:30 pm]');
+    });
+
+    it('getState() = Closed, isOpenSoon() = true, isClosedSoon() = false', () => {
+        const beforeFrom = new Date(currentDate);
+        beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
+
         expect(openingHours.getState(beforeFrom)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(beforeFrom)).toBeTruthy();
+        expect(openingHours.isClosedSoon(beforeFrom)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const openTime = new Date(currentDate);
+        openTime.setMinutes(openTime.getMinutes() + 60);
+
         expect(openingHours.getState(openTime)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(openTime)).toBeFalsy();
+        expect(openingHours.isClosedSoon(openTime)).toBeFalsy();
+    });
+
+    it('getState() = Open, isOpenSoon() = false, isClosedSoon() = true', () => {
+        const beforeUntil = new Date(currentDate);
+        beforeUntil.setMinutes(beforeUntil.getMinutes() + 119);
+
+        expect(openingHours.getState(beforeUntil)).toBe(oh.OpenState.Open);
+        expect(openingHours.isOpenSoon(beforeUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(beforeUntil)).toBeTruthy();
+    });
+
+    it('getState() = Closed, isOpenSoon() = false, isClosedSoon() = false', () => {
+        const afterUntil = new Date(currentDate);
+        afterUntil.setMinutes(afterUntil.getMinutes() + 121);
+
         expect(openingHours.getState(afterUntil)).toBe(oh.OpenState.Closed);
+        expect(openingHours.isOpenSoon(afterUntil)).toBeFalsy();
+        expect(openingHours.isClosedSoon(afterUntil)).toBeFalsy();
     });
 });
