@@ -111,9 +111,16 @@ export class OpeningHours {
     }
 
     getState(now = new Date()) {
-        const day = now.getDay() as number;
+        // make sure the timeZone is set with a value.
+        // At least the local time of the current client.
+        const { timeZone } = Intl.DateTimeFormat(
+            this.options.locales,
+            this.options.dateTimeFormatOptions).resolvedOptions();
+        const current = this.normalizeLocalDate(now, timeZone);
+        const day = current.getDay();
         for (const time of this.times[day]) {
-            if (time.from <= now && time.until >= now) {
+            const { from, until } = time;
+            if (from <= current && until >= current) {
                 return OpenState.Open;
             }
         }
@@ -125,13 +132,18 @@ export class OpeningHours {
      * 1800 seconds.
      */
     isOpenSoon(now = new Date(), elapseSeconds?: number) {
-        const curr = now.getTime()
-        const soon = curr + ((elapseSeconds || 1800) * 1000);
-        const day = now.getDay() as number;
+        // make sure the timeZone is set with a value.
+        // At least the local time of the current client.
+        const { timeZone } = Intl.DateTimeFormat(
+            this.options.locales,
+            this.options.dateTimeFormatOptions).resolvedOptions();
+        const current = this.normalizeLocalDate(now, timeZone);
+        const day = current.getDay();
+        const soon = this.normalizeLocalDate(now, timeZone);
+        soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
         for (const time of this.times[day]) {
-            const from = time.from.getTime();
-            const until = time.until.getTime();
-            if ((from > curr || until < curr) && from <= soon && until >= soon) {
+            const { from, until } = time;
+            if ((from > current || until < current) && from <= soon && until >= soon) {
                 return true;
             }
         }
@@ -143,13 +155,18 @@ export class OpeningHours {
      * 1800 seconds.
      */
     isClosedSoon(now = new Date(), elapseSeconds?: number) {
-        const curr = now.getTime()
-        const soon = curr + ((elapseSeconds || 1800) * 1000);
-        const day = now.getDay() as number;
+        // make sure the timeZone is set with a value.
+        // At least the local time of the current client.
+        const { timeZone } = Intl.DateTimeFormat(
+            this.options.locales,
+            this.options.dateTimeFormatOptions).resolvedOptions();
+        const current = this.normalizeLocalDate(now, timeZone);
+        const day = current.getDay();
+        const soon = this.normalizeLocalDate(now, timeZone);
+        soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
         for (const time of this.times[day]) {
-            const from = time.from.getTime();
-            const until = time.until.getTime();
-            if ((from > soon || until < soon) && from <= curr && until >= curr) {
+            const { from, until } = time;
+            if ((from > soon || until < soon) && from <= current && until >= current) {
                 return true;
             }
         }
@@ -264,11 +281,21 @@ export class OpeningHours {
      */
     toLocaleJSON(options: OpeningHoursOptions = {}): OpenTimeResultOutput[] {
         options = { ...this.options, ...options };
+        const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
+        delete format.timeZone;
+
         const { currentDate, locales } = options;
         const { weekDays } = { ...this.text,  ...(options.text || {}) };
+
+        // make sure the timeZone is set with a value.
+        // At least the local time of the current client.
+        const { timeZone } = Intl.DateTimeFormat(
+            this.options.locales,
+            this.options.dateTimeFormatOptions).resolvedOptions();
+        const current = this.normalizeLocalDate(currentDate as Date, timeZone);
         const openTimes = [];
         for (const [day, times] of this.times.entries()) {
-            const active = currentDate?.getDay() === day;
+            const active = current.getDay() === day;
             if (times.length === 0) {
                 // create an object if showClosedDays is enabled.
                 openTimes[day] = options.showClosedDays ? {
@@ -284,8 +311,8 @@ export class OpeningHours {
                     day: weekDays[day],
                     times: times
                         .map(time => {
-                            const from = time.from.toLocaleTimeString(locales, options.dateTimeFormatOptions);
-                            const until = time.until.toLocaleTimeString(locales, options.dateTimeFormatOptions);
+                            const from = time.from.toLocaleTimeString(locales, format);
+                            const until = time.until.toLocaleTimeString(locales, format);
                             return { from, until };
                         }),
                 };
@@ -335,6 +362,14 @@ export class OpeningHours {
         return result.join('\n');
     }
 
+
+    private normalizeLocalDate(date: Date, timeZone?: string | undefined) {
+        // Hack: I'm using the "sv" locale from sweden,
+        // because it's similar to the ISO DateTime format.
+        const result = date.toLocaleString('sv', { timeZone });
+        return new Date(result.replace(' ', 'T'));
+    }
+
     /**
      * Creates a date object from currentDate and the given
      * opening hours time.
@@ -348,11 +383,12 @@ export class OpeningHours {
             date.getMinutes(),
             date.getSeconds()
         ];
-        const offset = day - now.getDay();
+        const dayOffset = day - now.getDay();
+        
         return new Date(
             now.getFullYear(),
             now.getMonth(),
-            now.getDate() + offset,
+            now.getDate() + dayOffset,
             hours,
             minutes,
             seconds
