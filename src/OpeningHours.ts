@@ -281,7 +281,7 @@ export class OpeningHours {
      */
     toLocaleJSON(options: OpeningHoursOptions = {}): OpenTimeResultOutput[] {
         options = { ...this.options, ...options };
-        const format = { ...options.dateTimeFormatOptions };
+        const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
         delete format.timeZone;
 
         const { currentDate, locales } = options;
