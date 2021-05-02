@@ -27,53 +27,7 @@ export class OpeningHoursGroup {
     }
 
     add(exception: OpeningHoursException) {
-        const exceptions = this.exceptions;
-        const tmp = exceptions.splice(0);
-        for (const ex of tmp) {
-            if (
-                ex.overwrite === false || 
-                ex.fromDate > exception.untilDate || 
-                ex.untilDate < exception.fromDate
-            ) {
-                continue;
-            }
-
-            // cut exception in two parts
-            else if (ex.fromDate < exception.fromDate && ex.untilDate > exception.untilDate) {
-                const preUntilDate = new Date(exception.fromDate);
-                preUntilDate.setDate(preUntilDate.getDate() - 1);
-                exceptions.push({
-                    ...ex,
-                    fromDate: new Date(ex.fromDate),
-                    untilDate: preUntilDate,
-                });
-
-                const postFromDate = new Date(exception.fromDate);
-                postFromDate.setDate(postFromDate.getDate() + 1);
-                exceptions.push({
-                    ...ex,
-                    fromDate: postFromDate,
-                    untilDate: new Date(ex.untilDate),
-                });
-            }
-
-            // cut start time (from)
-            else if (ex.fromDate >= exception.fromDate && ex.fromDate <= exception.untilDate && ex.untilDate > exception.untilDate) {
-                const fromDate = new Date(exception.fromDate);
-                fromDate.setDate(fromDate.getDate() + 1);
-                const untilDate = new Date(ex.fromDate);
-                exceptions.push({ ...ex, fromDate, untilDate });
-            }
-
-            // cut end time (until)
-            else if (ex.untilDate <= exception.untilDate && ex.untilDate >= exception.fromDate && ex.fromDate < exception.fromDate) {
-                const fromDate = new Date(ex.fromDate);
-                const untilDate = new Date(exception.fromDate);
-                untilDate.setDate(untilDate.getDate() - 1);
-                exceptions.push({ ...ex, fromDate, untilDate });
-            }
-        }
-
+        const exceptions = this.removeExceptions(exception.fromDate, exception.untilDate, true);
         exception = {
             ...exception,
             id: exception.id !== undefined ? exception.id : 'ex' + (OpeningHoursGroup.nextId++),
@@ -85,7 +39,7 @@ export class OpeningHoursGroup {
     }
 
     remove(fromDate: Date, untilDate: Date) {
-        // TODO: remove operation by date
+        this.removeExceptions(fromDate, untilDate, false);
     }
 
     removeById(id: string) {
@@ -96,7 +50,9 @@ export class OpeningHoursGroup {
         return {
             default: this.default.toJSON(),
             exceptions: this.exceptions.map(ex => ({
-                ...ex,
+                fromDate: ex.fromDate.toISOString().split('T')[0],
+                untilDate: ex.untilDate.toISOString().split('T')[0],
+                text: ex.text,
                 openingHours: ex.openingHours?.toJSON(),
             })),
         };
@@ -110,6 +66,59 @@ export class OpeningHoursGroup {
     toString() {
         // TODO: create human readable output as text for current locale
         return '';
+    }
+
+    private removeExceptions(fromDate: Date, untilDate: Date, onlyOverwrite = false) {
+        const exceptions = this.exceptions;
+        const tmp = exceptions.splice(0);
+        for (const ex of tmp) {
+            if (
+                onlyOverwrite &&
+                (
+                    ex.overwrite === false || 
+                    ex.fromDate > untilDate || 
+                    ex.untilDate < fromDate
+                )
+            ) {
+                continue;
+            }
+
+            // cut exception in two parts
+            else if (ex.fromDate < fromDate && ex.untilDate > untilDate) {
+                const preUntilDate = new Date(fromDate);
+                preUntilDate.setDate(preUntilDate.getDate() - 1);
+                exceptions.push({
+                    ...ex,
+                    fromDate: new Date(ex.fromDate),
+                    untilDate: preUntilDate,
+                });
+
+                const postFromDate = new Date(fromDate);
+                postFromDate.setDate(postFromDate.getDate() + 1);
+                exceptions.push({
+                    ...ex,
+                    fromDate: postFromDate,
+                    untilDate: new Date(ex.untilDate),
+                });
+            }
+
+            // cut start time (from)
+            else if (ex.fromDate >= fromDate && ex.fromDate <= untilDate && ex.untilDate > untilDate) {
+                const changedFromDate = new Date(fromDate);
+                changedFromDate.setDate(fromDate.getDate() + 1);
+                const untilDate = new Date(ex.fromDate);
+                exceptions.push({ ...ex, fromDate: changedFromDate, untilDate });
+            }
+
+            // cut end time (until)
+            else if (ex.untilDate <= untilDate && ex.untilDate >= fromDate && ex.fromDate < fromDate) {
+                const fromDate = new Date(ex.fromDate);
+                const changedUntilDate = new Date(untilDate);
+                changedUntilDate.setDate(changedUntilDate.getDate() - 1);
+                exceptions.push({ ...ex, fromDate, untilDate: changedUntilDate });
+            }
+        }
+        return exceptions;
     }
 
 }
