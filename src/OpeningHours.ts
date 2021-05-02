@@ -362,7 +362,6 @@ export class OpeningHours {
         return result.join('\n');
     }
 
-
     private normalizeLocalDate(date: Date, timeZone?: string | undefined) {
         // Hack: I'm using the "sv" locale from sweden,
         // because it's similar to the ISO DateTime format.
@@ -463,7 +462,7 @@ export class OpeningHours {
     /**
      * Make sure the until time for midnight is 23:59
      */
-    private normalizeUntilDate(date: Date) {
+    private normalizeUntilTime(date: Date) {
         if (date.getHours() === 0 && date.getMinutes() === 0) {
             date.setHours(23);
             date.setMinutes(59);
@@ -492,7 +491,7 @@ export class OpeningHours {
             from: this.normalizeTimeString(time.from, time.day, removePattern),
             until: this.normalizeTimeString(time.until, time.day, removePattern)
         }
-        this.normalizeUntilDate(internal.until);
+        this.normalizeUntilTime(internal.until);
 
         internal.from.setDate(internal.from.getDate());
         internal.until.setDate(internal.until.getDate());

@@ -11,10 +11,9 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 - [x] Cut a timespan out of the opening hours (i.e. business hours between 8 AM till 6 PM, pause between 12 and 1 PM)
 - [x] Provide functions to get the current open state
 - [x] Provide functions to get an indicator for open/close soon
-
-## Note
-
-I consider the state of development as done. There are other features I could add, but this is better placed in a different project. If you find any issues, let me know or send a merge-request. I won't add new features.
+- [ ] Special opening hours for a given timespan in days
+- [ ] Alternative text for special opening hours
+- [ ] Schema.org import/export
 
 ## Examples
 
