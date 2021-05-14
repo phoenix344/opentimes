@@ -265,7 +265,7 @@ export class OpeningHours {
      */
     toJSON() {
         const renderer = new DataJson(this);
-        return renderer.render();
+        return renderer.convert();
     }
 
     /**
@@ -273,7 +273,7 @@ export class OpeningHours {
      */
     toLocaleJSON(options: OpeningHoursOptions = {}) {
         const renderer = new DisplayJson(this, options);
-        return renderer.render();
+        return renderer.convert();
     }
 
     /**
@@ -281,7 +281,7 @@ export class OpeningHours {
      */
     toString(options: OpeningHoursOptions = {}) {
         const renderer = new DisplayText(this, options);
-        return renderer.render();
+        return renderer.convert();
     }
 
     private normalizeLocalDate(date: Date, timeZone?: string | undefined) {

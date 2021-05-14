@@ -3,14 +3,14 @@ import { Converter } from "../Converter";
 import { DisplayJson } from "./DisplayJson";
 
 export class DisplayText extends Converter<string> {
-    render(options: OpeningHoursOptions = {}) {
+    convert(options: OpeningHoursOptions = {}) {
         const {
             timespanSeparator,
             closed
         } = { ...this.openingHours.text,  ...(options.text || {}) };
         const result = [];
         const jsonRenderer = new DisplayJson(this.openingHours, this.options);
-        const openTimes = jsonRenderer.render(options);
+        const openTimes = jsonRenderer.convert(options);
         for (const obj of openTimes) {
             let resultStr: string;
             if (obj.times.length) {

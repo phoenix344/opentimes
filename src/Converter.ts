@@ -6,5 +6,5 @@ export abstract class Converter<T, U = OpeningHoursOptions> {
         this.options = { ...this.openingHours.options, ...options };
     }
 
-    abstract render(options?: U): T;
+    abstract convert(options?: U): T;
 }

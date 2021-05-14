@@ -2,7 +2,7 @@ import { Converter } from "../Converter";
 import { OpeningHoursOptions, OpenTimeResultOutput } from "../OpeningHours";
 
 export class DisplayJson extends Converter<OpenTimeResultOutput[]> {
-    render(options: OpeningHoursOptions = {}) {
+    convert(options: OpeningHoursOptions = {}) {
         options = { ...this.options, ...options };
         const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
         delete format.timeZone;
