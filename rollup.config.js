@@ -16,27 +16,27 @@ const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 
 export default [
     {
-        input: 'src/OpeningHours.ts',
+        input: 'src/index.ts',
         output: [
             {
-                file: 'lib/es6/cjs/OpeningHours.js',
+                file: 'lib/es6/index.cjs.js',
                 format: 'cjs',
                 exports: 'named',
             },
             {
-                file: 'lib/es6/esm/OpeningHours.js',
+                file: 'lib/es6/index.esm.js',
                 format: 'es',
                 exports: 'named',
             },
             {
-                file: 'lib/es6/iife/OpeningHours.js',
+                file: 'lib/es6/index.iife.js',
                 format: 'iife',
                 name: 'p34',
                 exports: 'named',
             },
         ],
         plugins: [
-            cleaner(['lib/es6', 'lib/es6/cjs/', 'lib/es6/esm/', 'lib/es6/iife/']),
+            cleaner(['lib/es6/']),
             resolve({
                 extensions,
                 preferBuiltins: true
@@ -59,27 +59,27 @@ export default [
         ]
     },
     {
-        input: 'src/OpeningHours.ts',
+        input: 'src/index.ts',
         output: [
             {
-                file: 'lib/esnext/cjs/OpeningHours.js',
+                file: 'lib/esnext/index.cjs.js',
                 format: 'cjs',
                 exports: 'named',
             },
             {
-                file: 'lib/esnext/esm/OpeningHours.js',
+                file: 'lib/esnext/index.esm.js',
                 format: 'es',
                 exports: 'named',
             },
             {
-                file: 'lib/esnext/iife/OpeningHours.js',
+                file: 'lib/esnext/index.iife.js',
                 format: 'iife',
                 name: 'p34',
                 exports: 'named',
             },
         ],
         plugins: [
-            cleaner(['lib/esnext/', 'lib/esnext/cjs/', 'lib/esnext/esm/', 'lib/esnext/iife/']),
+            cleaner(['lib/esnext/']),
             resolve({
                 extensions,
                 preferBuiltins: true

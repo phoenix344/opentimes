@@ -1,4 +1,4 @@
-import { MicrodataConverter } from "converter/MicrodataConverter";
+import { MicrodataConverter } from "./converter/MicrodataConverter";
 import { DataJsonConverter } from "./converter/DataJsonConverter";
 import { DisplayJsonConverter } from "./converter/DisplayJsonConverter";
 import { DisplayTextConverter } from "./converter/DisplayTextConverter";
@@ -13,6 +13,7 @@ export declare interface DateTimeObject {
 export declare interface OpenTimeInternal {
     from: Date;
     until: Date;
+    text?: string;
 }
 
 export declare interface OpenTimeInput extends DateTimeObject {
@@ -98,7 +99,38 @@ export class OpeningHours {
         closed: string;
         break: string;
     };
-    readonly times: Array<OpenTimeInternal[]>;
+
+    // TODO: add some info text to seasonal opening/closing times
+    get times(): OpenTimeInternal[][] {
+        const { currentDate } = this.options;
+        const now = currentDate || new Date();
+        const weekDay = now.getDay();
+        const result = this.internalTimes.default.slice(0);
+        const emptyTimes = [[], [], [], [], [], [], []];
+        for (const season of this.internalTimes.seasons.values()) {
+            for (let i = 0; i < 7; i++) {
+                if (weekDay > i) {
+                    now.setDate(now.getDate() - (weekDay - i));
+                } else {
+                    now.setDate(now.getDate() + i);
+                }
+                if (now >= season.fromDate && now <= season.untilDate) {
+                    result[i] = (season.times || emptyTimes)[i].slice(0);
+                }
+            }
+        }
+        return result;
+    }
+
+    private internalTimes: {
+        default: OpenTimeInternal[][];
+        seasons: Set<{
+            fromDate: Date;
+            untilDate: Date;
+            text?: string;
+            times?: OpenTimeInternal[][];
+        }>;
+    }
 
     constructor(options: OpeningHoursOptions = {}) {
         // prepare options
@@ -111,7 +143,10 @@ export class OpeningHours {
         } as never;
 
         // setup a 2D array for 7 days, started by sunday.
-        this.times = [[], [], [], [], [], [], []];
+        this.internalTimes = {
+            default: [[], [], [], [], [], [], []],
+            seasons: new Set(),
+        };
     }
 
     getState(now = new Date()) {
@@ -122,7 +157,7 @@ export class OpeningHours {
             this.options.dateTimeFormatOptions).resolvedOptions();
         const current = this.normalizeLocalDate(now, timeZone);
         const day = current.getDay();
-        for (const time of this.times[day]) {
+        for (const time of this.internalTimes.default[day]) {
             const { from, until } = time;
             if (from <= current && until >= current) {
                 return OpenState.Open;
@@ -253,7 +288,7 @@ export class OpeningHours {
      * loading a list of time objects and optimize them
      */
     load(times: OpenTimeInput[]) {
-        this.times.forEach(times => times.splice(0));
+        this.internalTimes.default.forEach(times => times.splice(0));
         for (const time of times) {
             const optimized = this.optimize(time);
             this.addIfNotExist(optimized);
@@ -277,6 +312,10 @@ export class OpeningHours {
         return converter.convert(this, options);
     }
 
+    /**
+     * Creates a string or a string array output of opening hours
+     * in microdata format.
+     */
     toMicrodata(options: OpeningHoursOptions = {}) {
         const converter = new MicrodataConverter();
         return converter.convert(this, options);
@@ -327,7 +366,7 @@ export class OpeningHours {
      */
     private addIfNotExist(optimizedTimes: OpenTimeInternal[]) {
         for (const time of optimizedTimes) {
-            const times = this.times[time.from.getDay()];
+            const times = this.internalTimes.default[time.from.getDay()];
             times.push(time);
         }
     }
@@ -417,7 +456,7 @@ export class OpeningHours {
      * Executes sort and merge functions to every timespan on every weekday.
      */
     private postOptimize() {
-        for (const times of this.times.values()) {
+        for (const times of this.internalTimes.default.values()) {
             this.sort(times);
             this.mergeTimespans(times);
         }
@@ -454,7 +493,7 @@ export class OpeningHours {
             if (!removable) {
                 continue;
             }
-            const times = this.times[removable.from.getDay()];
+            const times = this.internalTimes.default[removable.from.getDay()];
             const tmp = times.splice(0);
             for (const time of tmp) {
                 // no remove operation needed
