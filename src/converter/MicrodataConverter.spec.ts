@@ -1,7 +1,7 @@
 import {OpeningHours, WeekDays} from '../OpeningHours';
-import {Microdata} from './Microdata';
+import {MicrodataConverter} from './MicrodataConverter';
 
-describe('Microdata', () => {
+describe('Microdata converter', () => {
     it('creates single string output', () => {
         const openingHours = new OpeningHours();
         openingHours.add(WeekDays.Monday, '0:0', '0.0');
@@ -10,8 +10,8 @@ describe('Microdata', () => {
         openingHours.add(WeekDays.Friday, '00:00', '24:00');
         openingHours.add(WeekDays.Sunday, '23:59', '23:59');
 
-        const microdata = new Microdata(openingHours);
-        expect(microdata.convert()).toBe('Su-Th,Fr 00:00-23:59');
+        const microdata = new MicrodataConverter();
+        expect(microdata.convert(openingHours)).toBe('Su-Th,Fr 00:00-23:59');
     });
 
     it('creates multiple string output', () => {
@@ -25,8 +25,8 @@ describe('Microdata', () => {
             { "day": 6, "from": "1000", "until": "1400" }
         ]);
 
-        const microdata = new Microdata(openingHours);
-        expect(microdata.convert()).toStrictEqual([
+        const microdata = new MicrodataConverter();
+        expect(microdata.convert(openingHours)).toStrictEqual([
             "Mo-Tu,We-Fr 08:00-16:00",
             "Th 09:00-12:00",
             "Sa 10:00-14:00"

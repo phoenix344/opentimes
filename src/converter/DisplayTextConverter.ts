@@ -1,16 +1,16 @@
-import { OpeningHoursOptions } from "../OpeningHours";
+import { OpeningHours, OpeningHoursOptions } from "../OpeningHours";
 import { Converter } from "../Converter";
-import { DisplayJson } from "./DisplayJson";
+import { DisplayJsonConverter } from "./DisplayJsonConverter";
 
-export class DisplayText extends Converter<string> {
-    convert(options: OpeningHoursOptions = {}) {
+export class DisplayTextConverter implements Converter<string> {
+    convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
         const {
             timespanSeparator,
             closed
-        } = { ...this.openingHours.text,  ...(options.text || {}) };
+        } = { ...openingHours.text,  ...(options.text || {}) };
         const result = [];
-        const jsonRenderer = new DisplayJson(this.openingHours, this.options);
-        const openTimes = jsonRenderer.convert(options);
+        const jsonRenderer = new DisplayJsonConverter();
+        const openTimes = jsonRenderer.convert(openingHours, options);
         for (const obj of openTimes) {
             let resultStr: string;
             if (obj.times.length) {

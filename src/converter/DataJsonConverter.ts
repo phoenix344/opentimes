@@ -1,11 +1,11 @@
-import { OpenTimeOutput } from "../OpeningHours";
+import { OpeningHours, OpenTimeOutput } from "../OpeningHours";
 import { Converter } from "../Converter";
 import { convertToSimpleFormat } from "../helpers";
 
-export class DataJson extends Converter<OpenTimeOutput[]> {
-    convert() {
+export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
+    convert(openingHours: OpeningHours) {
         const result: OpenTimeOutput[] = [];
-        for (const [day, spans] of this.openingHours.times.entries()) {
+        for (const [day, spans] of openingHours.times.entries()) {
             if (spans.length === 0) {
                 continue;
             }

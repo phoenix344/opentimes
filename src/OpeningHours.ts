@@ -1,6 +1,6 @@
-import { DataJson } from "./converter/DataJson";
-import { DisplayJson } from "./converter/DisplayJson";
-import { DisplayText } from "./converter/DisplayText";
+import { DataJsonConverter } from "./converter/DataJsonConverter";
+import { DisplayJsonConverter } from "./converter/DisplayJsonConverter";
+import { DisplayTextConverter } from "./converter/DisplayTextConverter";
 
 export declare type DateType = Date | number | string;
 
@@ -264,24 +264,24 @@ export class OpeningHours {
      * Creates normalized JSON format.
      */
     toJSON() {
-        const renderer = new DataJson(this);
-        return renderer.convert();
+        const renderer = new DataJsonConverter();
+        return renderer.convert(this);
     }
 
     /**
      * Creates an array output for opening hours.
      */
     toLocaleJSON(options: OpeningHoursOptions = {}) {
-        const renderer = new DisplayJson(this, options);
-        return renderer.convert();
+        const renderer = new DisplayJsonConverter();
+        return renderer.convert(this, options);
     }
 
     /**
      * Creates a string output for opening hours.
      */
     toString(options: OpeningHoursOptions = {}) {
-        const renderer = new DisplayText(this, options);
-        return renderer.convert();
+        const renderer = new DisplayTextConverter();
+        return renderer.convert(this, options);
     }
 
     private normalizeLocalDate(date: Date, timeZone?: string | undefined) {

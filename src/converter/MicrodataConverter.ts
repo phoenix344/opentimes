@@ -1,16 +1,16 @@
-import { OpeningHoursOptions } from "OpeningHours";
+import { OpeningHours, OpeningHoursOptions } from "OpeningHours";
 import { Converter } from "../Converter";
 
-export class Microdata extends Converter<string | string[]> {
-    convert(options: OpeningHoursOptions = {}) {
-        options = { ...this.options, ...options };
+export class MicrodataConverter implements Converter<string | string[]> {
+    convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
+        options = { ...openingHours.options, ...options };
+        
         const mapping = ['Su', 'Mo', 'Tu', 'Th', 'We', 'Fr', 'Sa'];
-
         const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
         const { locales } = options;
-
         const tmp: { [span: string]: number[] } = {};
-        for (const [day, spans] of this.openingHours.times.entries()) {
+
+        for (const [day, spans] of openingHours.times.entries()) {
             for (const { from, until } of spans) {
                 const span = from.toLocaleTimeString(locales, format) + '-' + until.toLocaleTimeString(locales, format);
                 if (!tmp[span]) {

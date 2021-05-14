@@ -1,23 +1,23 @@
 import { Converter } from "../Converter";
-import { OpeningHoursOptions, OpenTimeResultOutput } from "../OpeningHours";
+import { OpeningHours, OpeningHoursOptions, OpenTimeResultOutput } from "../OpeningHours";
 
-export class DisplayJson extends Converter<OpenTimeResultOutput[]> {
-    convert(options: OpeningHoursOptions = {}) {
-        options = { ...this.options, ...options };
+export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
+    convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
+        options = { ...openingHours.options, ...options };
         const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
         delete format.timeZone;
 
         const { currentDate, locales } = options;
-        const { weekDays } = { ...this.openingHours.text,  ...(options.text || {}) };
+        const { weekDays } = { ...openingHours.text,  ...(options.text || {}) };
 
         // make sure the timeZone is set with a value.
         // At least the local time of the current client.
         const { timeZone } = Intl.DateTimeFormat(
-            this.options.locales,
-            this.options.dateTimeFormatOptions).resolvedOptions();
+            options.locales,
+            options.dateTimeFormatOptions).resolvedOptions();
         const current = this.normalizeLocalDate(currentDate as Date, timeZone);
         const openTimes = [];
-        for (const [day, times] of this.openingHours.times.entries()) {
+        for (const [day, times] of openingHours.times.entries()) {
             const active = current.getDay() === day;
             if (times.length === 0) {
                 // create an object if showClosedDays is enabled.
