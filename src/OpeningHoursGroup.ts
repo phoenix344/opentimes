@@ -1,4 +1,4 @@
-import { OpeningHours } from "OpeningHours";
+import { OpeningHours, OpeningHoursOptions } from "OpeningHours";
 
 export interface OpeningHoursException {
     fromDate: Date;
@@ -9,6 +9,13 @@ export interface OpeningHoursException {
     overwrite?: boolean | void;
 }
 
+export interface OpeningHoursGroupOptions {
+    openingHours?: OpeningHours;
+    currentDate?: Date;
+    locales?: string;
+    dateTimeFormatOptions?: Intl.DateTimeFormatOptions;
+}
+
 export class OpeningHoursGroup {
 
     private static nextId = 1;
@@ -16,9 +23,9 @@ export class OpeningHoursGroup {
     private default!: OpeningHours;
     private exceptions: OpeningHoursException[] = [];
 
-    constructor(openingHours?: OpeningHours) {
-        if (openingHours) {
-            this.setDefault(openingHours);
+    constructor(private options: OpeningHoursGroupOptions = {}) {
+        if (this.options.openingHours) {
+            this.setDefault(this.options.openingHours);
         }
     }
 
@@ -47,6 +54,7 @@ export class OpeningHoursGroup {
     }
 
     toJSON() {
+        // TODO: fix output
         return {
             default: this.default.toJSON(),
             exceptions: this.exceptions.map(ex => ({
@@ -58,9 +66,11 @@ export class OpeningHoursGroup {
         };
     }
 
-    toLocaleJSON() {
+    toLocaleJSON(options?: OpeningHoursOptions) {
+        const localeJSON = this.default.toLocaleJSON(options);
+        
         // TODO: create machine readable output in JSON for current locale
-        return {};
+        return localeJSON;
     }
 
     toString() {

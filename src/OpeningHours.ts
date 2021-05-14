@@ -1,3 +1,6 @@
+import { DataJsonRenderer } from "./renderer/DataJsonRenderer";
+import { DisplayJsonRenderer } from "./renderer/DisplayJsonRenderer";
+import { DisplayTextRenderer } from "./renderer/DisplayTextRenderer";
 
 export declare type DateType = Date | number | string;
 
@@ -87,14 +90,14 @@ export class OpeningHours {
         }
     };
 
-    private times: Array<OpenTimeInternal[]>;
-    private options: OpeningHoursOptions;
-    private text: {
+    readonly options!: OpeningHoursOptions;
+    readonly text: {
         timespanSeparator: string;
         weekDays: string[];
         closed: string;
         break: string;
     };
+    readonly times: Array<OpenTimeInternal[]>;
 
     constructor(options: OpeningHoursOptions = {}) {
         // prepare options
@@ -261,105 +264,24 @@ export class OpeningHours {
      * Creates normalized JSON format.
      */
     toJSON() {
-        const result: OpenTimeOutput[] = [];
-        for (const [day, times] of this.times.entries()) {
-            if (times.length === 0) {
-                continue;
-            }
-            result.push(...times
-                .map(time => {
-                    const from = this.convertToSimpleFormat(time.from);
-                    const until = this.convertToSimpleFormat(time.until);
-                    return { day, from, until };
-                }));
-        }
-        return result;
+        const renderer = new DataJsonRenderer(this);
+        return renderer.render();
     }
 
     /**
      * Creates an array output for opening hours.
      */
     toLocaleJSON(options: OpeningHoursOptions = {}): OpenTimeResultOutput[] {
-        options = { ...this.options, ...options };
-        const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
-        delete format.timeZone;
-
-        const { currentDate, locales } = options;
-        const { weekDays } = { ...this.text,  ...(options.text || {}) };
-
-        // make sure the timeZone is set with a value.
-        // At least the local time of the current client.
-        const { timeZone } = Intl.DateTimeFormat(
-            this.options.locales,
-            this.options.dateTimeFormatOptions).resolvedOptions();
-        const current = this.normalizeLocalDate(currentDate as Date, timeZone);
-        const openTimes = [];
-        for (const [day, times] of this.times.entries()) {
-            const active = current.getDay() === day;
-            if (times.length === 0) {
-                // create an object if showClosedDays is enabled.
-                openTimes[day] = options.showClosedDays ? {
-                    active,
-                    day: weekDays[day],
-                    times: []
-                } : null;
-            } else {
-                // insert opening hours with the correct time format and
-                // add the translation of the current day.
-                openTimes[day] = {
-                    active,
-                    day: weekDays[day],
-                    times: times
-                        .map(time => {
-                            const from = time.from.toLocaleTimeString(locales, format);
-                            const until = time.until.toLocaleTimeString(locales, format);
-                            return { from, until };
-                        }),
-                };
-            }
-        }
-
-        // reorder openTimes array to set the currently
-        // leading week day at the top.
-        this.setLeadingDay(openTimes, options);
-        const result = [];
-
-        // discard empty days
-        for (const item of openTimes) {
-            if (item) {
-                result.push(item);
-            }
-        }
-        return result as OpenTimeResultOutput[];
+        const renderer = new DisplayJsonRenderer(this, options);
+        return renderer.render();
     }
 
     /**
      * Creates a string output for opening hours.
      */
     toString(options: OpeningHoursOptions = {}) {
-        const {
-            timespanSeparator,
-            closed
-        } = { ...this.text,  ...(options.text || {}) };
-        const result = [];
-
-        // load output data and format it into a text
-        // output.
-        const openTimes = this.toLocaleJSON(options)
-        for (const obj of openTimes) {
-            let resultStr: string;
-            if (obj.times.length) {
-                resultStr = `${obj.day} ${obj.times.map(time => (
-                    time.from +
-                    timespanSeparator +
-                    time.until
-                )).join(', ')}`;
-            } else {
-                resultStr = `${obj.day} ${closed}`;
-            }
-            result.push(obj.active ? '[' + resultStr + ']' : resultStr);
-        }
-        return result.join('\n');
+        const renderer = new DisplayTextRenderer(this, options);
+        return renderer.render();
     }
 
     private normalizeLocalDate(date: Date, timeZone?: string | undefined) {
@@ -392,20 +314,6 @@ export class OpeningHours {
             minutes,
             seconds
         );
-    }
-
-    /**
-     * defines the leading week day by
-     * currentDayOnTop and weekStart options.
-     */
-    private setLeadingDay<T>(result: T[], options: OpeningHoursOptions) {
-        const { currentDate, currentDayOnTop, weekStart } = options;
-        const weekDay = currentDate && currentDayOnTop ? currentDate.getDay() :
-            weekStart !== undefined ? weekStart : 0;
-        if (weekDay > 0) {
-            const previous = result.splice(weekDay);
-            result.unshift(...previous);
-        }
     }
 
     /**
@@ -467,19 +375,6 @@ export class OpeningHours {
             date.setHours(23);
             date.setMinutes(59);
         }
-    }
-
-    /**
-     * Create a simplified 24h time format without any separator.
-     */
-    private convertToSimpleFormat(date: Date) {
-        const hours = date.getHours().toString();
-        const minutes = date.getMinutes().toString();
-        const seconds = date.getSeconds().toString();
-        return ('00' + hours).slice(hours.length) +
-            ('00' + minutes).slice(minutes.length) +
-            (seconds !== '0' ?
-                ('00' + seconds).slice(seconds.length) : '');
     }
 
     /**
