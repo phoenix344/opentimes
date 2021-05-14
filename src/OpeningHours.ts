@@ -1,3 +1,4 @@
+import { MicrodataConverter } from "converter/MicrodataConverter";
 import { DataJsonConverter } from "./converter/DataJsonConverter";
 import { DisplayJsonConverter } from "./converter/DisplayJsonConverter";
 import { DisplayTextConverter } from "./converter/DisplayTextConverter";
@@ -264,24 +265,29 @@ export class OpeningHours {
      * Creates normalized JSON format.
      */
     toJSON() {
-        const renderer = new DataJsonConverter();
-        return renderer.convert(this);
+        const converter = new DataJsonConverter();
+        return converter.convert(this);
     }
 
     /**
      * Creates an array output for opening hours.
      */
     toLocaleJSON(options: OpeningHoursOptions = {}) {
-        const renderer = new DisplayJsonConverter();
-        return renderer.convert(this, options);
+        const converter = new DisplayJsonConverter();
+        return converter.convert(this, options);
+    }
+
+    toMicrodata(options: OpeningHoursOptions = {}) {
+        const converter = new MicrodataConverter();
+        return converter.convert(this, options);
     }
 
     /**
      * Creates a string output for opening hours.
      */
-    toString(options: OpeningHoursOptions = {}) {
-        const renderer = new DisplayTextConverter();
-        return renderer.convert(this, options);
+     toString(options: OpeningHoursOptions = {}) {
+        const converter = new DisplayTextConverter();
+        return converter.convert(this, options);
     }
 
     private normalizeLocalDate(date: Date, timeZone?: string | undefined) {
