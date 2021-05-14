@@ -1,7 +1,7 @@
-import { Renderer } from "../Renderer";
+import { Converter } from "../Converter";
 import { OpeningHoursOptions, OpenTimeResultOutput } from "../OpeningHours";
 
-export class DisplayJsonRenderer extends Renderer<OpenTimeResultOutput[]> {
+export class DisplayJson extends Converter<OpenTimeResultOutput[]> {
     render(options: OpeningHoursOptions = {}) {
         options = { ...this.options, ...options };
         const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };

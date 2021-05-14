@@ -1,15 +1,15 @@
 import { OpeningHoursOptions } from "../OpeningHours";
-import { Renderer } from "../Renderer";
-import { DisplayJsonRenderer } from "./DisplayJsonRenderer";
+import { Converter } from "../Converter";
+import { DisplayJson } from "./DisplayJson";
 
-export class DisplayTextRenderer extends Renderer<string> {
+export class DisplayText extends Converter<string> {
     render(options: OpeningHoursOptions = {}) {
         const {
             timespanSeparator,
             closed
         } = { ...this.openingHours.text,  ...(options.text || {}) };
         const result = [];
-        const jsonRenderer = new DisplayJsonRenderer(this.openingHours, this.options);
+        const jsonRenderer = new DisplayJson(this.openingHours, this.options);
         const openTimes = jsonRenderer.render(options);
         for (const obj of openTimes) {
             let resultStr: string;

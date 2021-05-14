@@ -1,7 +1,7 @@
 import { OpenTimeOutput } from "../OpeningHours";
-import { Renderer } from "../Renderer";
+import { Converter } from "../Converter";
 
-export class DataJsonRenderer extends Renderer<OpenTimeOutput[]> {
+export class DataJson extends Converter<OpenTimeOutput[]> {
     render() {
         const result: OpenTimeOutput[] = [];
         for (const [day, times] of this.openingHours.times.entries()) {

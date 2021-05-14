@@ -1,6 +1,6 @@
-import { DataJsonRenderer } from "./renderer/DataJsonRenderer";
-import { DisplayJsonRenderer } from "./renderer/DisplayJsonRenderer";
-import { DisplayTextRenderer } from "./renderer/DisplayTextRenderer";
+import { DataJson } from "./converter/DataJson";
+import { DisplayJson } from "./converter/DisplayJson";
+import { DisplayText } from "./converter/DisplayText";
 
 export declare type DateType = Date | number | string;
 
@@ -264,15 +264,15 @@ export class OpeningHours {
      * Creates normalized JSON format.
      */
     toJSON() {
-        const renderer = new DataJsonRenderer(this);
+        const renderer = new DataJson(this);
         return renderer.render();
     }
 
     /**
      * Creates an array output for opening hours.
      */
-    toLocaleJSON(options: OpeningHoursOptions = {}): OpenTimeResultOutput[] {
-        const renderer = new DisplayJsonRenderer(this, options);
+    toLocaleJSON(options: OpeningHoursOptions = {}) {
+        const renderer = new DisplayJson(this, options);
         return renderer.render();
     }
 
@@ -280,7 +280,7 @@ export class OpeningHours {
      * Creates a string output for opening hours.
      */
     toString(options: OpeningHoursOptions = {}) {
-        const renderer = new DisplayTextRenderer(this, options);
+        const renderer = new DisplayText(this, options);
         return renderer.render();
     }
 
