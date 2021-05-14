@@ -8,10 +8,9 @@ describe('Microdata converter', () => {
         openingHours.add(WeekDays.Tuesday, '00:00', '00:00');
         openingHours.add(WeekDays.Wednesday, '24:00', '00:00');
         openingHours.add(WeekDays.Friday, '00:00', '24:00');
-        openingHours.add(WeekDays.Sunday, '23:59', '23:59');
 
         const microdata = new MicrodataConverter();
-        expect(microdata.convert(openingHours)).toBe('Su-Th,Fr 00:00-23:59');
+        expect(microdata.convert(openingHours)).toBe('Mo-We,Fr 00:00-23:59');
     });
 
     it('creates multiple string output', () => {
@@ -27,8 +26,8 @@ describe('Microdata converter', () => {
 
         const microdata = new MicrodataConverter();
         expect(microdata.convert(openingHours)).toStrictEqual([
-            "Mo-Tu,We-Fr 08:00-16:00",
-            "Th 09:00-12:00",
+            "Mo-Tu,Th-Fr 08:00-16:00",
+            "We 09:00-12:00",
             "Sa 10:00-14:00"
         ]);
     });
