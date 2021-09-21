@@ -53,7 +53,8 @@
     "start": "rollup -c rollup.config.js -w",
     "build": "BUILD=production rollup -c rollup.config.js",
     "lint": "eslint",
-    "test": "jest --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "coverage": "jest --coverage",
     "prepublish": "BUILD=production rollup -c rollup.config.js && eslint && jest"
   }

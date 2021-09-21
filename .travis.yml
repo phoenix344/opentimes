@@ -1,0 +1,9 @@
+language: node_js
+os: linux
+node_js:
+  - "14"
+  - "16"
+env:
+  - NPM_SCRIPT=test
+script:
+  - npm run $NPM_SCRIPT
