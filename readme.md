@@ -1,5 +1,7 @@
 # OpeningHours
 
+[![Build Status](https://app.travis-ci.com/phoenix344/opening-hours.svg?branch=master)](https://app.travis-ci.com/phoenix344/opening-hours)
+
 A plain typescript/ES6+ opening hours library with no external dependencies.
 
 ## Features
