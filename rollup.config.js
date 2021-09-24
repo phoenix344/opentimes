@@ -1,7 +1,6 @@
 import cleaner from 'rollup-plugin-cleaner';
 import resolve from 'rollup-plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
-import tspaths from 'rollup-plugin-ts-paths-resolve';
 import typescript from 'rollup-plugin-typescript2';
 import analyzer from 'rollup-plugin-analyzer';
 import babel from '@rollup/plugin-babel';
@@ -41,7 +40,6 @@ export default [
                 extensions,
                 preferBuiltins: true
             }),
-            tspaths({ logLevel: 'warn', tsConfigPath: 'tsconfig.json' }),
             typescript({
                 abortOnError: true,
                 tsConfigPath: 'tsconfig.json',
@@ -84,7 +82,6 @@ export default [
                 extensions,
                 preferBuiltins: true
             }),
-            tspaths({ logLevel: 'warn', tsConfigPath: 'tsconfig.json' }),
             typescript({
                 abortOnError: true,
                 tsConfigPath: 'tsconfig.json',
@@ -96,4 +93,4 @@ export default [
             ...plugins,
         ]
     }
-]
+];
