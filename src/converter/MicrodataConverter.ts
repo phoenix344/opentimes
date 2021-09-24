@@ -6,7 +6,10 @@ export class MicrodataConverter implements Converter<string | string[]> {
         options = { ...openingHours.options, ...options };
         
         const mapping = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
         const format: Intl.DateTimeFormatOptions = { ...options.dateTimeFormatOptions };
+        delete format.timeZone;
+
         const { locales } = options;
         const tmp: { [span: string]: number[] } = {};
 
