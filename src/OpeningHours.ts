@@ -2,6 +2,7 @@ import { MicrodataConverter } from "./converter/MicrodataConverter";
 import { DataJsonConverter } from "./converter/DataJsonConverter";
 import { DisplayJsonConverter } from "./converter/DisplayJsonConverter";
 import { DisplayTextConverter } from "./converter/DisplayTextConverter";
+import { normalizeLocalDate } from "./helpers";
 
 export declare type DateType = Date | number | string;
 
@@ -156,7 +157,7 @@ export class OpeningHours {
       this.options.locales,
       this.options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = this.normalizeLocalDate(now, timeZone);
+    const current = normalizeLocalDate(now, timeZone);
     const day = current.getDay();
     for (const time of this.internalTimes.default[day]) {
       const from = new Date(
@@ -193,7 +194,7 @@ export class OpeningHours {
       this.options.locales,
       this.options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = this.normalizeLocalDate(now, timeZone);
+    const current = normalizeLocalDate(now, timeZone);
     const day = current.getDay();
     const soon = new Date(current);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
@@ -224,9 +225,9 @@ export class OpeningHours {
       this.options.locales,
       this.options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = this.normalizeLocalDate(now, timeZone);
+    const current = normalizeLocalDate(now, timeZone);
     const day = current.getDay();
-    const soon = this.normalizeLocalDate(now, timeZone);
+    const soon = normalizeLocalDate(now, timeZone);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
       const from = new Date(

@@ -1,3 +1,4 @@
+import { normalizeLocalDate } from "../helpers";
 import { Converter } from "../Converter";
 import {
   OpeningHours,
@@ -22,7 +23,7 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
       options.locales,
       options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = this.normalizeLocalDate(currentDate as Date, timeZone);
+    const current = normalizeLocalDate(currentDate as Date, timeZone);
     const openTimes = [];
     for (const [day, times] of openingHours.times.entries()) {
       const active = current.getDay() === day;
@@ -62,13 +63,6 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
       }
     }
     return result as OpenTimeResultOutput[];
-  }
-
-  private normalizeLocalDate(date: Date, timeZone?: string | undefined) {
-    // Hack: I'm using the "sv" locale from sweden,
-    // because it's similar to the ISO DateTime format.
-    const result = date.toLocaleString("sv", { timeZone });
-    return new Date(result.replace(" ", "T"));
   }
 
   /**
