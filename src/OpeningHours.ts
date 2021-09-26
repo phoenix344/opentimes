@@ -159,7 +159,22 @@ export class OpeningHours {
     const current = this.normalizeLocalDate(now, timeZone);
     const day = current.getDay();
     for (const time of this.internalTimes.default[day]) {
-      const { from, until } = time;
+      const from = new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        current.getDate(),
+        time.from.getHours(),
+        time.from.getMinutes(),
+        time.from.getSeconds()
+      );
+      const until = new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        current.getDate(),
+        time.until.getHours(),
+        time.until.getMinutes(),
+        time.until.getSeconds()
+      );
       if (from <= current && until >= current) {
         return OpenState.Open;
       }
@@ -180,15 +195,18 @@ export class OpeningHours {
     ).resolvedOptions();
     const current = this.normalizeLocalDate(now, timeZone);
     const day = current.getDay();
-    const soon = this.normalizeLocalDate(now, timeZone);
+    const soon = new Date(current);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
-      const { from, until } = time;
-      if (
-        (from > current || until < current) &&
-        from <= soon &&
-        until >= soon
-      ) {
+      const from = new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        current.getDate(),
+        time.from.getHours(),
+        time.from.getMinutes(),
+        time.from.getSeconds()
+      );
+      if (from >= current && from <= soon) {
         return true;
       }
     }
@@ -211,7 +229,22 @@ export class OpeningHours {
     const soon = this.normalizeLocalDate(now, timeZone);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
-      const { from, until } = time;
+      const from = new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        current.getDate(),
+        time.from.getHours(),
+        time.from.getMinutes(),
+        time.from.getSeconds()
+      );
+      const until = new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        current.getDate(),
+        time.until.getHours(),
+        time.until.getMinutes(),
+        time.until.getSeconds()
+      );
       if (
         (from > soon || until < soon) &&
         from <= current &&
@@ -310,9 +343,12 @@ export class OpeningHours {
   /**
    * Creates normalized JSON format.
    */
-  toJSON() {
+  toJSON(options: OpeningHoursOptions = {}) {
     const converter = new DataJsonConverter();
-    return converter.convert(this);
+    return converter.convert(this, {
+      ...this.options,
+      ...options,
+    });
   }
 
   /**
@@ -361,21 +397,25 @@ export class OpeningHours {
    * opening hours time.
    */
   private getTimeByCurrentDay(date: Date | [number, number, number, number]) {
-    const { currentDate } = this.options;
-    const now = currentDate || new Date();
-    const [day, hours, minutes, seconds] = Array.isArray(date)
-      ? date
-      : [date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds()];
-    const dayOffset = day - now.getDay();
+    if (Array.isArray(date)) {
+      const { currentDate } = this.options;
+      const now = currentDate || new Date();
+      const [day, hours, minutes, seconds] = date;
+      const dayOffset = day - now.getDay();
 
-    return new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + dayOffset,
-      hours,
-      minutes,
-      seconds
-    );
+      return new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + dayOffset,
+        hours,
+        minutes,
+        seconds
+      );
+    } else {
+      const timeZone = this.options.dateTimeFormatOptions?.timeZone;
+      const result = date.toLocaleString("sv", { timeZone });
+      return new Date(result.replace(" ", "T"));
+    }
   }
 
   /**

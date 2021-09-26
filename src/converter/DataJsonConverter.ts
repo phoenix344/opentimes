@@ -1,21 +1,32 @@
-import { OpeningHours, OpenTimeOutput } from "../OpeningHours";
+import {
+  OpeningHours,
+  OpeningHoursOptions,
+  OpenTimeOutput,
+} from "../OpeningHours";
 import { Converter } from "../Converter";
-import { convertToSimpleFormat } from "../helpers";
+import { DisplayJsonConverter } from "./DisplayJsonConverter";
 
 export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
-    convert(openingHours: OpeningHours) {
-        const result: OpenTimeOutput[] = [];
-        for (const [day, spans] of openingHours.times.entries()) {
-            if (spans.length === 0) {
-                continue;
-            }
-            result.push(...spans
-                .map(time => {
-                    const from = convertToSimpleFormat(time.from);
-                    const until = convertToSimpleFormat(time.until);
-                    return { day, from, until };
-                }));
-        }
-        return result;
+  convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
+    const result: OpenTimeOutput[] = [];
+    const format: Intl.DateTimeFormatOptions = {
+      ...openingHours.options.dateTimeFormatOptions,
+    };
+    delete format.timeZone;
+
+    const { weekDays } = { ...openingHours.text, ...(options.text || {}) };
+    const jsonConverter = new DisplayJsonConverter();
+    const openTimes = jsonConverter.convert(openingHours, options);
+
+    for (const times of openTimes) {
+      for (const time of times.times) {
+        result.push({
+          day: weekDays.indexOf(times.day),
+          from: time.from.replace(/:/g, ""),
+          until: time.until.replace(/:/g, ""),
+        });
+      }
     }
+    return result;
+  }
 }
