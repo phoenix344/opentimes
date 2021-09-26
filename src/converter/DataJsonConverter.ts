@@ -13,7 +13,6 @@ export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
     };
     delete format.timeZone;
 
-    const { locales } = options;
     const result: OpenTimeOutput[] = [];
 
     for (const [day, times] of openingHours.times.entries()) {
@@ -23,10 +22,10 @@ export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
         result.push(
           ...times.map((time) => {
             const from = time.from
-              .toLocaleTimeString(locales, format)
+              .toLocaleTimeString("sv", format)
               .replace(/:/g, "");
             const until = time.until
-              .toLocaleTimeString(locales, format)
+              .toLocaleTimeString("sv", format)
               .replace(/:/g, "");
             return { day, from, until };
           })
