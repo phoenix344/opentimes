@@ -1,5 +1,10 @@
-import { OpeningHours, OpeningHoursOptions } from "./OpeningHours";
+import {
+  OpenTimeOutput,
+  OpeningHoursOptions,
+  OpenTimeInternal,
+} from "./OpeningHours";
 
 export interface Converter<T, U = OpeningHoursOptions> {
-    convert(openingHours: OpeningHours, options?: U): T;
+  convert(input: OpenTimeInternal[], options?: U): T;
+  parse(input: T, options?: U): OpenTimeOutput[];
 }

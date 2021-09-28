@@ -33,6 +33,7 @@ export declare interface OpenTimeOutput {
   day: WeekDays;
   from: string;
   until: string;
+  text?: string;
 }
 
 export declare interface OpenTimeResultOutput {
@@ -384,13 +385,6 @@ export class OpeningHours {
       ...this.options,
       ...options,
     });
-  }
-
-  private normalizeLocalDate(date: Date, timeZone?: string | undefined) {
-    // Hack: I'm using the "sv" locale from sweden,
-    // because it's similar to the ISO DateTime format.
-    const result = date.toLocaleString("sv", { timeZone });
-    return new Date(result.replace(" ", "T"));
   }
 
   /**

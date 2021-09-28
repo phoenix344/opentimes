@@ -1,13 +1,15 @@
 import {
-  OpeningHours,
+  OpenTimeInternal,
   OpeningHoursOptions,
   OpenTimeOutput,
 } from "../OpeningHours";
 import { Converter } from "../Converter";
 
 export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
-  convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
-    options = { ...openingHours.options, ...options };
+  convert(
+    input: OpenTimeInternal[],
+    options: OpeningHoursOptions = {}
+  ): OpenTimeOutput[] {
     const format: Intl.DateTimeFormatOptions = {
       ...options.dateTimeFormatOptions,
     };
@@ -15,23 +17,18 @@ export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
 
     const result: OpenTimeOutput[] = [];
 
-    for (const [day, times] of openingHours.times.entries()) {
-      if (times.length !== 0) {
-        // insert opening hours with the correct time format and
-        // add the translation of the current day.
-        result.push(
-          ...times.map((time) => {
-            const from = time.from
-              .toLocaleTimeString("sv", format)
-              .replace(/:/g, "");
-            const until = time.until
-              .toLocaleTimeString("sv", format)
-              .replace(/:/g, "");
-            return { day, from, until };
-          })
-        );
-      }
+    for (const { text, from, until } of input) {
+      result.push({
+        day: from.getDay(),
+        from: from.toLocaleTimeString("sv", format).replace(/:/g, ""),
+        until: until.toLocaleTimeString("sv", format).replace(/:/g, ""),
+        text,
+      });
     }
     return result;
+  }
+
+  parse(input: OpenTimeOutput[]): OpenTimeOutput[] {
+    return input;
   }
 }

@@ -5,6 +5,7 @@ import {
   OpeningHoursOptions,
   OpenTimeResultOutput,
 } from "../OpeningHours";
+import { OpenTimeOutput } from "index";
 
 export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
   convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
@@ -63,6 +64,14 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
       }
     }
     return result as OpenTimeResultOutput[];
+  }
+
+  parse(
+    input: OpenTimeResultOutput[],
+    options: OpeningHoursOptions = {}
+  ): OpenTimeOutput[] {
+    // TODO
+    return [];
   }
 
   /**
