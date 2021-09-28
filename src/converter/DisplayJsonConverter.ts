@@ -1,22 +1,24 @@
 import { normalizeLocalDate } from "../helpers";
 import { Converter } from "../Converter";
 import {
-  OpeningHours,
+  OpenTimeInternal,
   OpeningHoursOptions,
   OpenTimeResultOutput,
+  WeekDaysShort,
 } from "../OpeningHours";
-import { OpenTimeOutput } from "index";
 
 export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
-  convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
-    options = { ...openingHours.options, ...options };
+  convert(
+    input: OpenTimeInternal[][],
+    options: Partial<OpeningHoursOptions> = {}
+  ) {
     const format: Intl.DateTimeFormatOptions = {
       ...options.dateTimeFormatOptions,
     };
     delete format.timeZone;
 
     const { currentDate, locales } = options;
-    const { weekDays } = { ...openingHours.text, ...(options.text || {}) };
+    const weekDays = options.text?.weekDays || WeekDaysShort;
 
     // make sure the timeZone is set with a value.
     // At least the local time of the current client.
@@ -26,7 +28,7 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
     ).resolvedOptions();
     const current = normalizeLocalDate(currentDate as Date, timeZone);
     const openTimes = [];
-    for (const [day, times] of openingHours.times.entries()) {
+    for (const [day, times] of input.entries()) {
       const active = current.getDay() === day;
       if (times.length === 0) {
         // create an object if showClosedDays is enabled.
@@ -68,8 +70,8 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
 
   parse(
     input: OpenTimeResultOutput[],
-    options: OpeningHoursOptions = {}
-  ): OpenTimeOutput[] {
+    options: Partial<OpeningHoursOptions> = {}
+  ): OpenTimeInternal[][] {
     // TODO
     return [];
   }
@@ -78,7 +80,7 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
    * defines the leading week day by
    * currentDayOnTop and weekStart options.
    */
-  private setLeadingDay<T>(result: T[], options: OpeningHoursOptions) {
+  private setLeadingDay<T>(result: T[], options: Partial<OpeningHoursOptions>) {
     const { currentDate, currentDayOnTop, weekStart } = options;
     const weekDay =
       currentDate && currentDayOnTop

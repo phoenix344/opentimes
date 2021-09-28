@@ -344,7 +344,7 @@ export class OpeningHours {
    */
   toLocaleJSON(options: Partial<OpeningHoursOptions> = {}) {
     const converter = new DisplayJsonConverter();
-    return converter.convert(this, {
+    return converter.convert(this.times, {
       ...this.options,
       ...options,
     });
