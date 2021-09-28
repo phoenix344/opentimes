@@ -67,24 +67,23 @@ describe("DisplayJsonConverter", () => {
   });
 
   it("::parse(input, options?)", () => {
-    const converter = new DataJsonConverter();
+    const converter = new DisplayJsonConverter();
     const result = converter.parse(
       [
         {
-          day: WeekDays.Monday,
-          from: "0800",
-          until: "1200",
+          day: 'mon',
+          active: false,
+          times: [
+            { from: "08:00", until: "14:00" }
+          ]
         },
         {
-          day: WeekDays.Tuesday,
-          from: "0800",
-          until: "1200",
-        },
-        {
-          day: WeekDays.Tuesday,
-          from: "1230",
-          until: "1730",
-          text: "test",
+          day: 'tue',
+          active: true,
+          times: [
+            { from: "08:00", until: "12:00" },
+            { from: "12:30", until: "17:30" },
+          ]
         },
       ],
       defaultOptions
