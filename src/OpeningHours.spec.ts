@@ -1,6 +1,6 @@
 import * as oh from "./OpeningHours";
 
-const defaultOptions: oh.OpeningHoursOptions = {
+const defaultOptions: Partial<oh.OpeningHoursOptions> = {
   currentDate: new Date("2020-09-06"),
   currentDayOnTop: false,
   locales: "de-DE",
