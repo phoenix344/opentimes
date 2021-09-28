@@ -413,7 +413,7 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - current date",
   });
 });
 
-describe("state, isOpenSoon(), isClosedSoon()", () => {
+describe("states and utility functions", () => {
   it("checks states", () => {
     const openingHours = new oh.OpeningHours(defaultOptions);
     openingHours.load([
@@ -483,6 +483,26 @@ describe("state, isOpenSoon(), isClosedSoon()", () => {
     expect(
       openingHours.isOpenSoon(new Date("2020-09-07T08:15+0200"), 900)
     ).toBeTruthy();
+  });
+
+  it("returns next open time", () => {
+    const openingHours = new oh.OpeningHours(defaultOptions);
+    openingHours.load([
+      { day: 1, from: "0830", until: "1230" },
+      { day: 1, from: "1300", until: "1700" },
+    ]);
+    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 8))).toBe("08:30");
+    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 12, 31))).toBe(
+      "13:00"
+    );
+    // already open, should return the next open time
+    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 9, 30))).toBe(
+      "13:00"
+    );
+    // closed, should return closed
+    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 17, 1))).toBe(
+      "closed"
+    );
   });
 
   it("checks if closed soon (default: 30min)", () => {

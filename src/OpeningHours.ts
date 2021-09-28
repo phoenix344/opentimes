@@ -259,6 +259,32 @@ export class OpeningHours {
   }
 
   /**
+   * Returns the local time string of the next opening time.
+   */
+  getNextOpenTime(now = new Date()) {
+    // make sure the timeZone is set with a value.
+    // At least the local time of the current client.
+    const { timeZone } = Intl.DateTimeFormat(
+      this.options.locales,
+      this.options.dateTimeFormatOptions
+    ).resolvedOptions();
+    const { locales } = this.options;
+    const format: Intl.DateTimeFormatOptions = {
+      ...this.options.dateTimeFormatOptions,
+    };
+    delete format.timeZone;
+    const current = this.normalizeLocalDate(now, timeZone);
+    const day = current.getDay();
+    for (const time of this.times[day]) {
+      const { from, until } = time;
+      if (from > current && until > current) {
+        return from.toLocaleTimeString(locales, format);
+      }
+    }
+    return this.options.text?.closed;
+  }
+
+  /**
    * add a single time object and optimize it
    */
   add(day: WeekDays, from: DateType, until: DateType) {
