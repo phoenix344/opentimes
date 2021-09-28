@@ -146,11 +146,13 @@ describe('add(weekDay, "h:mm", "h:mm") - after current date', () => {
         day: 1,
         from: "0830",
         until: "1430",
+        text: undefined,
       },
       {
         day: 1,
         from: "1500",
         until: "2000",
+        text: undefined,
       },
     ]);
   });
@@ -305,11 +307,13 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
         day: 1,
         from: "0830",
         until: "1430",
+        text: undefined,
       },
       {
         day: 1,
         from: "1500",
         until: "2000",
+        text: undefined,
       },
     ]);
   });

@@ -7,7 +7,7 @@ import { Converter } from "../Converter";
 
 export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
   convert(
-    input: OpenTimeInternal[],
+    input: OpenTimeInternal[][],
     options: OpeningHoursOptions = {}
   ): OpenTimeOutput[] {
     const format: Intl.DateTimeFormatOptions = {
@@ -17,14 +17,20 @@ export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
 
     const result: OpenTimeOutput[] = [];
 
-    for (const { text, from, until } of input) {
-      result.push({
-        day: from.getDay(),
-        from: from.toLocaleTimeString("sv", format).replace(/:/g, ""),
-        until: until.toLocaleTimeString("sv", format).replace(/:/g, ""),
-        text,
-      });
+    for (let i = 0; i < input.length; i++) {
+      if (input[i].length === 0) {
+        continue;
+      }
+      for (const { from, until, text } of input[i]) {
+        result.push({
+          day: from.getDay(),
+          from: from.toLocaleTimeString("sv", format).replace(/:/g, ""),
+          until: until.toLocaleTimeString("sv", format).replace(/:/g, ""),
+          text,
+        });
+      }
     }
+
     return result;
   }
 

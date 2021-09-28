@@ -55,6 +55,6 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "coverage": "jest --coverage",
-    "prepublish": "BUILD=production rollup -c rollup.config.js && eslint && jest"
+    "prepublishOnly": "BUILD=production rollup -c rollup.config.js && eslint && jest"
   }
 }

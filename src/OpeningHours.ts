@@ -273,7 +273,7 @@ export class OpeningHours {
       ...this.options.dateTimeFormatOptions,
     };
     delete format.timeZone;
-    const current = this.normalizeLocalDate(now, timeZone);
+    const current = normalizeLocalDate(now, timeZone);
     const day = current.getDay();
     for (const time of this.times[day]) {
       const { from, until } = time;
@@ -373,7 +373,7 @@ export class OpeningHours {
    */
   toJSON(options: OpeningHoursOptions = {}) {
     const converter = new DataJsonConverter();
-    return converter.convert(this, {
+    return converter.convert(this.times, {
       ...this.options,
       ...options,
     });
