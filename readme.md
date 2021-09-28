@@ -14,7 +14,7 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 
 ## Note
 
-I consider the state of development as done. There are other features I could add, but this is better placed in a different project. If you find any issues, let me know or send a merge-request. I won't add new features.
+If you want to contribute, you can add a PR, but you should check the develop branch, not the master.
 
 ## Examples
 
