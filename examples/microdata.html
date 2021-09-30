@@ -11,7 +11,7 @@
   <h1>Add function example</h1>
   <pre></pre>
   <script type="module">
-    import { OpeningHours, WeekDays } from "../lib/esnext/esm/OpeningHours.js";
+    import { OpeningHours, WeekDays } from "../lib/esnext/index.esm.js";
 
     const oh = new OpeningHours({
       currentDate: new Date(2020, 8, 15),
@@ -20,7 +20,11 @@
       },
     });
 
-    oh.load(["Mo-Tu,Th-Fr 08:00-12:30, 13:00-16:00", "We 08:00-12:30, 13:00-16:00", "Sa 10:00-14:00"]);
+    oh.load([
+      "Mo-Tu,Th-Fr 08:00-12:30, 13:00-16:00",
+      "We 08:00-12:30, 13:00-16:00",
+      "Sa 10:00-14:00",
+    ]);
 
     oh.add(WeekDays.Monday, "08:00", "12:30");
     oh.add(WeekDays.Monday, "13:00", "16:00");
