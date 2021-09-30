@@ -1,15 +1,17 @@
 import {
-  OpenTimeInternal,
-  OpeningHoursOptions,
   OpenTimeOutput,
-} from "../OpeningHours";
+  OpeningHoursOptions,
+  OpenTimeInternal,
+} from "../interfaces";
 import { Converter } from "../Converter";
 import { createDateTime } from "../helpers";
 
-export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
-  convert(
+export class DataJsonConverter
+  implements Converter<OpenTimeOutput[], OpeningHoursOptions>
+{
+  toData(
     input: OpenTimeInternal[][],
-    options: Partial<OpeningHoursOptions> = {}
+    options: OpeningHoursOptions
   ): OpenTimeOutput[] {
     const result: OpenTimeOutput[] = [];
     const format: Intl.DateTimeFormatOptions = {
@@ -34,7 +36,7 @@ export class DataJsonConverter implements Converter<OpenTimeOutput[]> {
     return result;
   }
 
-  parse(input: OpenTimeOutput[], options: Partial<OpeningHoursOptions> = {}) {
+  fromData(input: OpenTimeOutput[], options: OpeningHoursOptions) {
     const times: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
     const currentDate = options.currentDate || new Date();
 

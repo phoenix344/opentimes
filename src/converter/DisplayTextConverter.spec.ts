@@ -1,6 +1,6 @@
 import { OpeningHoursOptions } from "../interfaces";
 import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { DisplayJsonConverter } from "./DisplayJsonConverter";
+import { DisplayTextConverter } from "./DisplayTextConverter";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -22,8 +22,8 @@ const defaultOptions: OpeningHoursOptions = {
 
 describe("DisplayJsonConverter", () => {
   it("::toData(input, options?)", () => {
-    const converter = new DisplayJsonConverter();
-    const [monday, tuesday] = converter.toData(
+    const converter = new DisplayTextConverter();
+    const result = converter.toData(
       [
         [
           /** sunday */
@@ -63,38 +63,17 @@ describe("DisplayJsonConverter", () => {
       defaultOptions
     );
 
-    expect(monday.day).toBe("mon");
-    expect(monday.times[0].from).toBe("08:00");
-    expect(monday.times[0].until).toBe("14:00");
-    expect(monday.active).toBe(false);
-
-    expect(tuesday.day).toBe("tue");
-    expect(tuesday.times[0].from).toBe("08:00");
-    expect(tuesday.times[0].until).toBe("12:00");
-    expect(tuesday.times[1].from).toBe("12:30");
-    expect(tuesday.times[1].until).toBe("17:30");
-    expect(tuesday.active).toBe(true);
+    expect(result).toBe(
+      "mon 08:00 - 14:00" + "\n" + "[tue 08:00 - 12:00, 12:30 - 17:30]"
+    );
   });
 
   it("::fromData(input, options?)", () => {
-    const converter = new DisplayJsonConverter();
+    const converter = new DisplayTextConverter();
+
     expect(() =>
       converter.fromData(
-        [
-          {
-            day: "mon",
-            active: false,
-            times: [{ from: "08:00", until: "14:00" }],
-          },
-          {
-            day: "tue",
-            active: true,
-            times: [
-              { from: "08:00", until: "12:00" },
-              { from: "12:30", until: "17:30" },
-            ],
-          },
-        ],
+        "mon 08:00 - 14:00" + "\n" + "[tue 08:00 - 12:00, 12:30 - 17:30]",
         defaultOptions
       )
     ).toThrow("Not supported!");

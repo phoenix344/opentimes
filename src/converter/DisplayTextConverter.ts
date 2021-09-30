@@ -1,16 +1,16 @@
-import { OpeningHours, OpeningHoursOptions } from "../OpeningHours";
+import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
 import { Converter } from "../Converter";
+import { createDateTime } from "../helpers";
 import { DisplayJsonConverter } from "./DisplayJsonConverter";
 
-export class DisplayTextConverter implements Converter<string> {
-  convert(openingHours: OpeningHours, options: OpeningHoursOptions = {}) {
-    const { timespanSeparator, closed } = {
-      ...openingHours.text,
-      ...(options.text || {}),
-    };
+export class DisplayTextConverter
+  implements Converter<string, OpeningHoursOptions>
+{
+  toData(input: OpenTimeInternal[][], options: OpeningHoursOptions) {
+    const { timespanSeparator, closed } = options.text || {};
     const result = [];
     const jsonConverter = new DisplayJsonConverter();
-    const openTimes = jsonConverter.convert(openingHours, options);
+    const openTimes = jsonConverter.toData(input, options);
     for (const obj of openTimes) {
       let resultStr: string;
       if (obj.times.length) {
@@ -23,5 +23,9 @@ export class DisplayTextConverter implements Converter<string> {
       result.push(obj.active ? "[" + resultStr + "]" : resultStr);
     }
     return result.join("\n");
+  }
+
+  fromData(input: string, options: OpeningHoursOptions): OpenTimeInternal[][] {
+    throw new Error("Not supported!");
   }
 }

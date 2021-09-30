@@ -1,19 +1,29 @@
-import { OpeningHoursOptions, WeekDays } from "../OpeningHours";
+import { OpeningHoursOptions } from "../interfaces";
+import { WeekDays, WeekDaysShort } from "../WeekDays";
 import { DataJsonConverter } from "./DataJsonConverter";
 
-const defaultOptions: Partial<OpeningHoursOptions> = {
+const defaultOptions: OpeningHoursOptions = {
+  weekStart: WeekDays.Monday,
   currentDate: new Date("2021-09-29T12:00:00"),
+  currentDayOnTop: false,
+  locales: "de-DE",
   dateTimeFormatOptions: {
+    timeZone: "Europe/Berlin",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "Europe/Berlin",
   },
+  text: {
+    closed: "closed",
+    timespanSeparator: " - ",
+    weekDays: WeekDaysShort,
+  },
+  showClosedDays: false,
 };
 
 describe("DataJsonConverter", () => {
-  it("::convert(input, options?)", () => {
+  it("::toData(input, options?)", () => {
     const converter = new DataJsonConverter();
-    const [monday, tuesdayMorning, tuesdayAfternoon] = converter.convert(
+    const [monday, tuesdayMorning, tuesdayAfternoon] = converter.toData(
       [
         [
           /** sunday */
@@ -69,9 +79,9 @@ describe("DataJsonConverter", () => {
     expect(tuesdayAfternoon.text).toBe("test");
   });
 
-  it("::parse(input, options?)", () => {
+  it("::fromData(input, options?)", () => {
     const converter = new DataJsonConverter();
-    const result = converter.parse(
+    const result = converter.fromData(
       [
         {
           day: WeekDays.Monday,

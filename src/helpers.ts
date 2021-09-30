@@ -1,5 +1,5 @@
-import { OpeningHoursOptions } from "index";
-import { OpenState, OpenTimeInternal } from "./OpeningHours";
+import { OpenState } from "./OpenState";
+import { OpeningHoursOptions, OpenTimeInternal } from "./interfaces";
 
 export function normalizeLocalDate(date: Date, timeZone?: string | undefined) {
   // Hack: I'm using the "sv" locale from sweden,

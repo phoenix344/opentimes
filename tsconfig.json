@@ -6,6 +6,8 @@
     "outDir": "lib",
     "baseUrl": "src",
     "strict": true,
+    "sourceMap": true,
+    "inlineSources": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -15,5 +17,5 @@
     "types": ["jest"]
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.spec.ts"]
+  "exclude": ["**/*.spec.ts", "lib/**/*.js"]
 }

@@ -11,78 +11,14 @@ import {
   normalizeUntilTime,
   postOptimize,
 } from "./helpers";
-
-export declare type DateType = Date | number | string;
-
-export declare interface DateTimeObject {
-  from: DateType;
-  until: DateType;
-}
-
-export declare interface OpenTimeInternal {
-  from: Date;
-  until: Date;
-  text?: string;
-}
-
-export declare interface OpenTimeInput extends DateTimeObject {
-  day: WeekDays;
-}
-
-export declare interface OpenTimeRemovableInput {
-  day?: WeekDays;
-  days?: WeekDays[];
-  from?: DateType;
-  until?: DateType;
-  spans?: Partial<DateTimeObject>[];
-}
-
-export declare interface OpenTimeOutput {
-  day: WeekDays;
-  from: string;
-  until: string;
-  text?: string;
-}
-
-export declare interface OpenTimeResultOutput {
-  active: boolean;
-  day: string;
-  times: Array<{
-    from: string;
-    until: string;
-  }>;
-}
-
-export declare interface OpeningHoursOptions {
-  weekStart: WeekDays;
-  currentDate: Date;
-  currentDayOnTop: boolean;
-  locales: string;
-  dateTimeFormatOptions: Intl.DateTimeFormatOptions;
-  showClosedDays: boolean;
-  text: {
-    timespanSeparator: string;
-    weekDays: string[];
-    closed: string;
-  };
-}
-
-export enum WeekDays {
-  Sunday = 0,
-  Monday = 1,
-  Tuesday = 2,
-  Wednesday = 3,
-  Thursday = 4,
-  Friday = 5,
-  Saturday = 6,
-}
-
-export enum OpenState {
-  Closed,
-  Open,
-}
-
-export const WeekDaysShort = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+import {
+  OpeningHoursOptions,
+  OpenTimeInternal,
+  DateType,
+  OpenTimeRemovableInput,
+  OpenTimeInput,
+} from "./interfaces";
+import { WeekDays, WeekDaysShort } from "./WeekDays";
 
 export class OpeningHours {
   static readonly defaultOptions: OpeningHoursOptions = {
@@ -104,12 +40,12 @@ export class OpeningHours {
   };
 
   readonly options!: OpeningHoursOptions;
-  readonly text: {
-    timespanSeparator: string;
-    weekDays: string[];
-    closed: string;
-    break: string;
-  };
+  // readonly text: {
+  //   timespanSeparator: string;
+  //   weekDays: string[];
+  //   closed: string;
+  //   break: string;
+  // };
 
   // TODO: add some info text to seasonal opening/closing times
   get times(): OpenTimeInternal[][] {
@@ -145,13 +81,24 @@ export class OpeningHours {
 
   constructor(options: Partial<OpeningHoursOptions> = {}) {
     // prepare options
-    this.options = { ...OpeningHours.defaultOptions, ...options };
+    this.options = {
+      ...OpeningHours.defaultOptions,
+      ...options,
+      dateTimeFormatOptions: {
+        ...OpeningHours.defaultOptions.dateTimeFormatOptions,
+        ...(options.dateTimeFormatOptions || {}),
+      },
+      text: {
+        ...OpeningHours.defaultOptions.text,
+        ...(options.text || {}),
+      },
+    };
 
-    // prepare translations object
-    this.text = {
-      ...(OpeningHours.defaultOptions.text || {}),
-      ...this.options.text,
-    } as never;
+    // // prepare translations object
+    // this.text = {
+    //   ...(OpeningHours.defaultOptions.text || {}),
+    //   ...this.options.text,
+    // } as never;
 
     // setup a 2D array for 7 days, started by sunday.
     this.internalTimes = {
@@ -241,7 +188,7 @@ export class OpeningHours {
         return from.toLocaleTimeString(locales, format);
       }
     }
-    return this.options.text?.closed;
+    return this.options.text.closed;
   }
 
   /**
@@ -331,22 +278,22 @@ export class OpeningHours {
   /**
    * Creates normalized JSON format.
    */
-  toJSON(options: Partial<OpeningHoursOptions> = {}) {
+  toJSON(options?: Partial<OpeningHoursOptions>) {
     const converter = new DataJsonConverter();
-    return converter.convert(this.times, {
+    return converter.toData(this.times, {
       ...this.options,
-      ...options,
+      ...(options || {}),
     });
   }
 
   /**
    * Creates an array output for opening hours.
    */
-  toLocaleJSON(options: Partial<OpeningHoursOptions> = {}) {
+  toLocaleJSON(options?: Partial<OpeningHoursOptions>) {
     const converter = new DisplayJsonConverter();
-    return converter.convert(this.times, {
+    return converter.toData(this.times, {
       ...this.options,
-      ...options,
+      ...(options || {}),
     });
   }
 
@@ -354,22 +301,22 @@ export class OpeningHours {
    * Creates a string or a string array output of opening hours
    * in microdata format.
    */
-  toMicrodata(options: Partial<OpeningHoursOptions> = {}) {
+  toMicrodata(options?: Partial<OpeningHoursOptions>) {
     const converter = new MicrodataConverter();
-    return converter.convert(this, {
+    return converter.toData(this.times, {
       ...this.options,
-      ...options,
+      ...(options || {}),
     });
   }
 
   /**
    * Creates a string output for opening hours.
    */
-  toString(options: Partial<OpeningHoursOptions> = {}) {
+  toString(options?: Partial<OpeningHoursOptions>) {
     const converter = new DisplayTextConverter();
-    return converter.convert(this, {
+    return converter.toData(this.times, {
       ...this.options,
-      ...options,
+      ...(options || {}),
     });
   }
 

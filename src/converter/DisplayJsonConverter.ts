@@ -1,17 +1,16 @@
 import { normalizeLocalDate } from "../helpers";
 import { Converter } from "../Converter";
 import {
-  OpenTimeInternal,
-  OpeningHoursOptions,
   OpenTimeResultOutput,
-  WeekDaysShort,
-} from "../OpeningHours";
+  OpeningHoursOptions,
+  OpenTimeInternal,
+} from "../interfaces";
+import { WeekDaysShort } from "../WeekDays";
 
-export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
-  convert(
-    input: OpenTimeInternal[][],
-    options: Partial<OpeningHoursOptions> = {}
-  ) {
+export class DisplayJsonConverter
+  implements Converter<OpenTimeResultOutput[], OpeningHoursOptions>
+{
+  toData(input: OpenTimeInternal[][], options: OpeningHoursOptions) {
     const format: Intl.DateTimeFormatOptions = {
       ...options.dateTimeFormatOptions,
     };
@@ -68,12 +67,11 @@ export class DisplayJsonConverter implements Converter<OpenTimeResultOutput[]> {
     return result as OpenTimeResultOutput[];
   }
 
-  parse(
+  fromData(
     input: OpenTimeResultOutput[],
-    options: Partial<OpeningHoursOptions> = {}
+    options: OpeningHoursOptions
   ): OpenTimeInternal[][] {
-    // TODO
-    return [];
+    throw new Error("Not supported!");
   }
 
   /**

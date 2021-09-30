@@ -1,6 +1,6 @@
-import { OpeningHoursOptions, OpenTimeInternal } from "./OpeningHours";
+import { OpeningHoursOptions, OpenTimeInternal } from "./interfaces";
 
-export interface Converter<T, U = OpeningHoursOptions> {
-  convert(input: OpenTimeInternal[][], options?: Partial<U>): T;
-  parse(input: T, options?: Partial<U>): OpenTimeInternal[][];
+export interface Converter<T, U extends OpeningHoursOptions> {
+  toData(input: OpenTimeInternal[][], options: U): T;
+  fromData(input: T, options: U): OpenTimeInternal[][];
 }
