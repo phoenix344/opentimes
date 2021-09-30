@@ -1,6 +1,6 @@
 import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
 import { Converter } from "../Converter";
-import { createDateTime } from "../helpers";
+import { combineDateTime, createDateTime } from "../helpers";
 
 const mapping = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
@@ -11,16 +11,22 @@ export class MicrodataConverter
     const format: Intl.DateTimeFormatOptions = {
       ...options.dateTimeFormatOptions,
     };
-    delete format.timeZone;
+    // delete format.timeZone;
 
     const tmp: { [span: string]: number[] } = {};
 
     for (const [day, spans] of input.entries()) {
       for (const { from, until } of spans) {
         const span =
-          from.toLocaleTimeString("sv", format) +
+          combineDateTime(options.currentDate, from).toLocaleTimeString(
+            "sv",
+            format
+          ) +
           "-" +
-          until.toLocaleTimeString("sv", format);
+          combineDateTime(options.currentDate, until).toLocaleTimeString(
+            "sv",
+            format
+          );
         if (!tmp[span]) {
           tmp[span] = [day];
         } else if (!tmp[span].includes(day)) {

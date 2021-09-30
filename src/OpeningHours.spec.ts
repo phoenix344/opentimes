@@ -4,7 +4,7 @@ import { WeekDays } from "./WeekDays";
 import { OpenState } from "./OpenState";
 
 const defaultOptions: Partial<OpeningHoursOptions> = {
-  currentDate: new Date("2020-09-06"),
+  currentDate: new Date("2020-09-06T00:00:00+0200"),
   currentDayOnTop: false,
   locales: "de-DE",
   dateTimeFormatOptions: {
@@ -40,7 +40,7 @@ describe("options test", () => {
   it("midnight till midnight (current date is tuesday)", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
-      currentDate: new Date(2020, 8, 8),
+      currentDate: new Date("2020-09-08"),
     });
 
     // fuzzy matching test for midnight
@@ -89,7 +89,7 @@ describe("options test", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
       currentDayOnTop: true,
-      currentDate: new Date(2020, 8, 9),
+      currentDate: new Date("2020-09-09"),
     });
     openingHours.add(WeekDays.Monday, "0:0", "0.0");
     openingHours.add(WeekDays.Tuesday, "00:00", "00:00");
@@ -187,7 +187,7 @@ describe('add(weekDay, "h:mm", "h:mm") - current date', () => {
   it("toString", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
-      currentDate: new Date(2020, 8, 7),
+      currentDate: new Date("2020-09-07"),
     });
     openingHours.add(WeekDays.Monday, "8:30", "14:30");
     openingHours.add(WeekDays.Monday, "15:00", "20:00");
@@ -197,7 +197,7 @@ describe('add(weekDay, "h:mm", "h:mm") - current date', () => {
   it("toLocaleJSON", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
-      currentDate: new Date(2020, 8, 7),
+      currentDate: new Date("2020-09-07"),
     });
     openingHours.add(WeekDays.Monday, "8:30", "14:30");
     openingHours.add(WeekDays.Monday, "15:00", "20:00");
@@ -296,13 +296,13 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
     openingHours.load([
       {
         day: 1,
-        from: "2020-09-07T06:30:00.000Z",
-        until: "2020-09-07T12:30:00.000Z",
+        from: "2020-09-07T08:30:00",
+        until: "2020-09-07T14:30:00",
       },
       {
         day: 1,
-        from: "2020-09-07T13:00:00.000Z",
-        until: "2020-09-07T18:00:00.000Z",
+        from: "2020-09-07T15:00:00",
+        until: "2020-09-07T20:00:00",
       },
     ]);
     expect(openingHours.toJSON()).toStrictEqual([

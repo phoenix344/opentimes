@@ -1,4 +1,4 @@
-import { normalizeLocalDate } from "../helpers";
+import { fromRemoteDate } from "../helpers";
 import { Converter } from "../Converter";
 import {
   OpenTimeResultOutput,
@@ -25,7 +25,8 @@ export class DisplayJsonConverter
       options.locales,
       options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = normalizeLocalDate(currentDate as Date, timeZone);
+
+    const current = fromRemoteDate(currentDate as Date, timeZone);
     const openTimes = [];
     for (const [day, times] of input.entries()) {
       const active = current.getDay() === day;
@@ -45,8 +46,25 @@ export class DisplayJsonConverter
           active,
           day: weekDays[day],
           times: times.map((time) => {
-            const from = time.from.toLocaleTimeString(locales, format);
-            const until = time.until.toLocaleTimeString(locales, format);
+            const fromDate = fromRemoteDate(
+              time.from,
+              options.dateTimeFormatOptions.timeZone
+            );
+            const untilDate = fromRemoteDate(
+              time.until,
+              options.dateTimeFormatOptions.timeZone
+            );
+
+            if (untilDate.getHours() === 0 && untilDate.getMinutes() === 0) {
+              untilDate.setHours(23);
+              untilDate.setMinutes(59);
+              untilDate.setSeconds(0);
+              untilDate.setMilliseconds(0);
+            }
+
+            const from = fromDate.toLocaleTimeString(locales, format);
+            const until = untilDate.toLocaleTimeString(locales, format);
+
             return { from, until };
           }),
         };

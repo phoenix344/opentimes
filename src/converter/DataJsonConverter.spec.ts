@@ -4,11 +4,11 @@ import { DataJsonConverter } from "./DataJsonConverter";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
-  currentDate: new Date("2021-09-29T12:00:00"),
+  currentDate: new Date("2021-09-29T12:00:00-0400"),
   currentDayOnTop: false,
   locales: "de-DE",
   dateTimeFormatOptions: {
-    timeZone: "Europe/Berlin",
+    timeZone: "America/New_York",
     hour: "2-digit",
     minute: "2-digit",
   },
@@ -31,19 +31,19 @@ describe("DataJsonConverter", () => {
         [
           /** monday */
           {
-            from: new Date("2021-09-28T06:00+0000"),
-            until: new Date("2021-09-28T14:00+0200"),
+            from: new Date("2021-09-28T08:00-0400"),
+            until: new Date("2021-09-28T14:00-0400"),
           },
         ],
         [
           /** tuesday */
           {
-            from: new Date("2021-09-28T06:00+0000"),
-            until: new Date("2021-09-28T08:00-0200"),
+            from: new Date("2021-09-28T08:00-0400"),
+            until: new Date("2021-09-28T12:00-0400"),
           },
           {
-            from: new Date("2021-09-28T10:30+0000"),
-            until: new Date("2021-09-28T13:30-0200"),
+            from: new Date("2021-09-28T12:30-0400"),
+            until: new Date("2021-09-28T17:30-0400"),
             text: "test",
           },
         ],
@@ -106,17 +106,21 @@ describe("DataJsonConverter", () => {
     const [monday] = result[WeekDays.Monday];
     const [tuesdayMorning, tuesdayAfternoon] = result[WeekDays.Tuesday];
 
-    expect(monday.from).toStrictEqual(new Date("2021-09-27T08:00:00"));
-    expect(monday.until).toStrictEqual(new Date("2021-09-27T12:00:00"));
+    expect(monday.from).toStrictEqual(new Date("2021-09-27T08:00-0400"));
+    expect(monday.until).toStrictEqual(new Date("2021-09-27T12:00-0400"));
 
-    expect(tuesdayMorning.from).toStrictEqual(new Date("2021-09-28T08:00:00"));
-    expect(tuesdayMorning.until).toStrictEqual(new Date("2021-09-28T12:00:00"));
+    expect(tuesdayMorning.from).toStrictEqual(
+      new Date("2021-09-28T08:00-0400")
+    );
+    expect(tuesdayMorning.until).toStrictEqual(
+      new Date("2021-09-28T12:00-0400")
+    );
 
     expect(tuesdayAfternoon.from).toStrictEqual(
-      new Date("2021-09-28T12:30:00")
+      new Date("2021-09-28T12:30-0400")
     );
     expect(tuesdayAfternoon.until).toStrictEqual(
-      new Date("2021-09-28T17:30:00")
+      new Date("2021-09-28T17:30-0400")
     );
   });
 });

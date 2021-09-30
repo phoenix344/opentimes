@@ -6,10 +6,12 @@ import {
   combineDateTime,
   createDateTime,
   cutTimespans,
+  fromRemoteDate,
   getState,
   normalizeLocalDate,
   normalizeUntilTime,
   postOptimize,
+  toRemoteDate,
 } from "./helpers";
 import {
   OpeningHoursOptions,
@@ -122,12 +124,15 @@ export class OpeningHours {
       this.options.locales,
       this.options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = normalizeLocalDate(now, timeZone);
+    const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
     const soon = new Date(current);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
-      const from = combineDateTime(current, time.from);
+      const from = fromRemoteDate(
+        combineDateTime(current, time.from),
+        timeZone
+      );
       if (from >= current && from <= soon) {
         return true;
       }
@@ -146,13 +151,19 @@ export class OpeningHours {
       this.options.locales,
       this.options.dateTimeFormatOptions
     ).resolvedOptions();
-    const current = normalizeLocalDate(now, timeZone);
+    const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
     const soon = normalizeLocalDate(now, timeZone);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
-      const from = combineDateTime(current, time.from);
-      const until = combineDateTime(current, time.until);
+      const from = fromRemoteDate(
+        combineDateTime(current, time.from),
+        timeZone
+      );
+      const until = fromRemoteDate(
+        combineDateTime(current, time.until),
+        timeZone
+      );
       if (
         (from > soon || until < soon) &&
         from <= current &&
@@ -179,11 +190,17 @@ export class OpeningHours {
       ...this.options.dateTimeFormatOptions,
     };
     delete format.timeZone;
-    const current = normalizeLocalDate(now, timeZone);
+    const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
     for (const time of this.times[day]) {
-      const from = combineDateTime(current, time.from);
-      const until = combineDateTime(current, time.until);
+      const from = fromRemoteDate(
+        combineDateTime(current, time.from),
+        timeZone
+      );
+      const until = fromRemoteDate(
+        combineDateTime(current, time.until),
+        timeZone
+      );
       if (from > current && until > current) {
         return from.toLocaleTimeString(locales, format);
       }
@@ -331,12 +348,12 @@ export class OpeningHours {
       const time = [hours, minutes, seconds]
         .map((n) => ("00" + n).slice(-2))
         .join(":");
-      return createDateTime(currentDate, day, time);
-    } else {
-      return normalizeLocalDate(
-        date,
-        this.options.dateTimeFormatOptions?.timeZone
+      return toRemoteDate(
+        createDateTime(currentDate, day, time),
+        this.options.dateTimeFormatOptions.timeZone
       );
+    } else {
+      return toRemoteDate(date, this.options.dateTimeFormatOptions.timeZone);
     }
   }
 
@@ -364,7 +381,7 @@ export class OpeningHours {
     if (
       "Invalid Date" !== date.toString() &&
       "string" === typeof time &&
-      24 === time.length
+      time.length >= 16
     ) {
       return this.getTimeByCurrentDay(date);
     } else if ("string" === typeof time) {

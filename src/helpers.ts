@@ -1,6 +1,30 @@
 import { OpenState } from "./OpenState";
 import { OpeningHoursOptions, OpenTimeInternal } from "./interfaces";
 
+export function toRemoteDate(date: Date, timeZone?: string) {
+  if (!timeZone) {
+    timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  const offsetDate = new Date(
+    date.toLocaleString("sv", { timeZone }).replace(" ", "T")
+  );
+
+  const offset = date.getTime() - offsetDate.getTime();
+  return new Date(date.getTime() + offset);
+}
+
+export function fromRemoteDate(date: Date, timeZone?: string) {
+  if (!timeZone) {
+    timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  const offsetDate = new Date(
+    date.toLocaleString("sv", { timeZone }).replace(" ", "T")
+  );
+
+  const offset = date.getTime() - offsetDate.getTime();
+  return new Date(date.getTime() - offset);
+}
+
 export function normalizeLocalDate(date: Date, timeZone?: string | undefined) {
   // Hack: I'm using the "sv" locale from sweden,
   // because it's similar to the ISO DateTime format.
@@ -109,11 +133,14 @@ export function getState(
     options.locales,
     options.dateTimeFormatOptions
   ).resolvedOptions();
-  const current = normalizeLocalDate(now, timeZone);
+  const current = fromRemoteDate(now, timeZone);
   const day = current.getDay();
   for (const time of openTimes[day]) {
-    const from = combineDateTime(current, time.from);
-    const until = combineDateTime(current, time.until);
+    const from = fromRemoteDate(combineDateTime(current, time.from), timeZone);
+    const until = fromRemoteDate(
+      combineDateTime(current, time.until),
+      timeZone
+    );
     if (from <= current && until >= current) {
       return OpenState.Open;
     }
