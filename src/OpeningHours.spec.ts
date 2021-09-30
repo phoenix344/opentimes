@@ -498,16 +498,18 @@ describe("states and utility functions", () => {
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
-    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 8))).toBe("08:30");
-    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 12, 31))).toBe(
+    expect(openingHours.getNextOpenTime(new Date("2020-09-07T08:00"))).toBe(
+      "08:30"
+    );
+    expect(openingHours.getNextOpenTime(new Date("2020-09-07T12:31"))).toBe(
       "13:00"
     );
     // already open, should return the next open time
-    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 9, 30))).toBe(
+    expect(openingHours.getNextOpenTime(new Date("2020-09-07T09:30"))).toBe(
       "13:00"
     );
     // closed, should return closed
-    expect(openingHours.getNextOpenTime(new Date(2020, 8, 7, 17, 1))).toBe(
+    expect(openingHours.getNextOpenTime(new Date("2020-09-07T17:01"))).toBe(
       "closed"
     );
   });
