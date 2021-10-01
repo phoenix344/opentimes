@@ -198,7 +198,6 @@ export class OpeningHours {
     if ("number" === typeof days) {
       days = [days];
     }
-    // const timeZone = this.options.dateTimeFormatOptions.timeZone;
     const removables: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
     for (const day of days) {
       const time = { day, from, until };
@@ -206,8 +205,6 @@ export class OpeningHours {
       const optimized = this.optimize(time);
       for (const timespan of optimized) {
         removables[timespan.from.getDay()].push(timespan);
-        // timespan.from = toRemoteDate(timespan.from, timeZone);
-        // timespan.until = toRemoteDate(timespan.until, timeZone);
       }
     }
     cutTimespans(this.internalTimes.default, removables);
@@ -218,7 +215,6 @@ export class OpeningHours {
    * Cut multiple chunks out of the opening hours.
    */
   cutMulti(input: Array<OpenTimeRemovableInput>) {
-    // const timeZone = this.options.dateTimeFormatOptions.timeZone;
     const removables: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
     for (const removable of input) {
       const days = [];
@@ -253,8 +249,6 @@ export class OpeningHours {
         const optimized = this.optimize(time);
         for (const timespan of optimized) {
           removables[timespan.from.getDay()].push(timespan);
-          // timespan.from = toRemoteDate(timespan.from, timeZone);
-          // timespan.until = toRemoteDate(timespan.until, timeZone);
         }
       }
     }

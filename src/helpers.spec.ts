@@ -1,4 +1,4 @@
-import { fromRemoteDate, toRemoteDate } from "./helpers";
+import { fromRemoteDate } from "./helpers";
 
 describe("helpers", () => {
   it("toLocaleDate(date, options)", () => {

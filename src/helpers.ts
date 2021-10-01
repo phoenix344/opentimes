@@ -26,13 +26,6 @@ export function fromRemoteDate(date: Date, timeZone?: string) {
   return new Date(date.getTime() - offset);
 }
 
-export function normalizeLocalDate(date: Date, timeZone?: string | undefined) {
-  // Hack: I'm using the "sv" locale from sweden,
-  // because it's similar to the ISO DateTime format.
-  const result = date.toLocaleString("sv", { timeZone });
-  return new Date(result.replace(" ", "T"));
-}
-
 export function normalizeUntilTime(date: Date) {
   if (date.getHours() === 0 && date.getMinutes() === 0) {
     date.setHours(23);
@@ -154,15 +147,4 @@ export function createDateTime(date: Date, day: number, timeStr: string) {
   const offset = day - datetime.getDay();
   datetime.setDate(datetime.getDate() + offset);
   return datetime;
-}
-
-export function combineDateTime(date: Date, time: Date) {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    time.getHours(),
-    time.getMinutes(),
-    time.getSeconds()
-  );
 }
