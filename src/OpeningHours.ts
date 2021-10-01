@@ -8,10 +8,8 @@ import {
   cutTimespans,
   fromRemoteDate,
   getState,
-  normalizeLocalDate,
   normalizeUntilTime,
   postOptimize,
-  toRemoteDate,
 } from "./helpers";
 import {
   OpeningHoursOptions,
@@ -35,6 +33,7 @@ export class OpeningHours {
     },
     text: {
       closed: "closed",
+      open: "open",
       timespanSeparator: " - ",
       weekDays: WeekDaysShort,
     },
@@ -42,28 +41,23 @@ export class OpeningHours {
   };
 
   readonly options!: OpeningHoursOptions;
-  // readonly text: {
-  //   timespanSeparator: string;
-  //   weekDays: string[];
-  //   closed: string;
-  //   break: string;
-  // };
+
+  currentDate!: Date;
 
   // TODO: add some info text to seasonal opening/closing times
   get times(): OpenTimeInternal[][] {
-    const { currentDate } = this.options;
-    const now = currentDate || new Date();
-    const weekDay = now.getDay();
+    const currentDate = this.currentDate;
+    const weekDay = currentDate.getDay();
     const result = this.internalTimes.default.slice(0);
     const emptyTimes = [[], [], [], [], [], [], []];
     for (const season of this.internalTimes.seasons.values()) {
       for (let i = 0; i < 7; i++) {
         if (weekDay > i) {
-          now.setDate(now.getDate() - (weekDay - i));
+          currentDate.setDate(currentDate.getDate() - (weekDay - i));
         } else {
-          now.setDate(now.getDate() + i);
+          currentDate.setDate(currentDate.getDate() + i);
         }
-        if (now >= season.fromDate && now <= season.untilDate) {
+        if (currentDate >= season.fromDate && currentDate <= season.untilDate) {
           result[i] = (season.times || emptyTimes)[i].slice(0);
         }
       }
@@ -96,11 +90,7 @@ export class OpeningHours {
       },
     };
 
-    // // prepare translations object
-    // this.text = {
-    //   ...(OpeningHours.defaultOptions.text || {}),
-    //   ...this.options.text,
-    // } as never;
+    this.currentDate = this.options.currentDate;
 
     // setup a 2D array for 7 days, started by sunday.
     this.internalTimes = {
@@ -129,10 +119,7 @@ export class OpeningHours {
     const soon = new Date(current);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
-      const from = fromRemoteDate(
-        combineDateTime(current, time.from),
-        timeZone
-      );
+      const from = time.from;
       if (from >= current && from <= soon) {
         return true;
       }
@@ -153,22 +140,12 @@ export class OpeningHours {
     ).resolvedOptions();
     const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
-    const soon = normalizeLocalDate(now, timeZone);
+    const soon = new Date(current);
     soon.setSeconds(soon.getSeconds() + (elapseSeconds || 1800));
     for (const time of this.times[day]) {
-      const from = fromRemoteDate(
-        combineDateTime(current, time.from),
-        timeZone
-      );
-      const until = fromRemoteDate(
-        combineDateTime(current, time.until),
-        timeZone
-      );
-      if (
-        (from > soon || until < soon) &&
-        from <= current &&
-        until >= current
-      ) {
+      const from = time.from;
+      const until = time.until;
+      if (from <= current && until >= current && soon > until) {
         return true;
       }
     }
@@ -193,14 +170,11 @@ export class OpeningHours {
     const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
     for (const time of this.times[day]) {
-      const from = fromRemoteDate(
-        combineDateTime(current, time.from),
-        timeZone
-      );
-      const until = fromRemoteDate(
-        combineDateTime(current, time.until),
-        timeZone
-      );
+      const from = time.from;
+      const until = time.until;
+      if (from <= current && until >= current) {
+        return this.options.text.open;
+      }
       if (from > current && until > current) {
         return from.toLocaleTimeString(locales, format);
       }
@@ -225,24 +199,29 @@ export class OpeningHours {
     if ("number" === typeof days) {
       days = [days];
     }
-    const optimized = [];
+    // const timeZone = this.options.dateTimeFormatOptions.timeZone;
+    const removables: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
     for (const day of days) {
       const time = { day, from, until };
-      // The second value (if exists) in the optimized array is the
-      // time after midnight from the next day. This must not be
-      // used in this case, so we avoid wrong remove operations.
-      optimized.push(this.optimize(time).shift());
+
+      const optimized = this.optimize(time);
+      for (const timespan of optimized) {
+        removables[timespan.from.getDay()].push(timespan);
+        // timespan.from = toRemoteDate(timespan.from, timeZone);
+        // timespan.until = toRemoteDate(timespan.until, timeZone);
+      }
     }
-    cutTimespans(this.internalTimes.default, optimized);
+    cutTimespans(this.internalTimes.default, removables);
     postOptimize(this.internalTimes.default);
   }
 
   /**
    * Cut multiple chunks out of the opening hours.
    */
-  cutMulti(removables: Array<OpenTimeRemovableInput>) {
-    const optimizedRemovables = [];
-    for (const removable of removables) {
+  cutMulti(input: Array<OpenTimeRemovableInput>) {
+    // const timeZone = this.options.dateTimeFormatOptions.timeZone;
+    const removables: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
+    for (const removable of input) {
       const days = [];
       const times = [];
       if ("undefined" !== typeof removable.days) {
@@ -272,11 +251,16 @@ export class OpeningHours {
       }
 
       for (const time of times) {
-        optimizedRemovables.push(this.optimize(time).shift());
+        const optimized = this.optimize(time);
+        for (const timespan of optimized) {
+          removables[timespan.from.getDay()].push(timespan);
+          // timespan.from = toRemoteDate(timespan.from, timeZone);
+          // timespan.until = toRemoteDate(timespan.until, timeZone);
+        }
       }
     }
 
-    cutTimespans(this.internalTimes.default, optimizedRemovables);
+    cutTimespans(this.internalTimes.default, removables);
     postOptimize(this.internalTimes.default);
   }
 
@@ -343,17 +327,20 @@ export class OpeningHours {
    */
   private getTimeByCurrentDay(date: Date | [number, number, number, number]) {
     if (Array.isArray(date)) {
-      const { currentDate } = this.options;
+      const currentDate = this.currentDate;
+      const timeZone = this.options.dateTimeFormatOptions.timeZone;
       const [day, hours, minutes, seconds] = date;
-      const time = [hours, minutes, seconds]
-        .map((n) => ("00" + n).slice(-2))
-        .join(":");
-      return toRemoteDate(
-        createDateTime(currentDate, day, time),
-        this.options.dateTimeFormatOptions.timeZone
-      );
+
+      const current = fromRemoteDate(currentDate, timeZone);
+      const dayOffset = day - current.getDay();
+      current.setDate(current.getDate() + dayOffset);
+      current.setHours(hours);
+      current.setMinutes(minutes);
+      current.setSeconds(seconds);
+
+      return current;
     } else {
-      return toRemoteDate(date, this.options.dateTimeFormatOptions.timeZone);
+      return date;
     }
   }
 
@@ -363,7 +350,7 @@ export class OpeningHours {
   private addIfNotExist(optimizedTimes: OpenTimeInternal[]) {
     for (const time of optimizedTimes) {
       const times = this.internalTimes.default[time.from.getDay()];
-      times.push(time);
+      times.push({ ...time });
     }
   }
 
@@ -431,23 +418,36 @@ export class OpeningHours {
     };
     normalizeUntilTime(internal.until);
 
-    internal.from.setDate(internal.from.getDate());
-    internal.until.setDate(internal.until.getDate());
-
+    const result = [];
     if (internal.until < internal.from) {
+      const untilPrevDay = createDateTime(
+        this.currentDate,
+        internal.from.getDay(),
+        "23:59:00"
+      );
+
+      const fromNextDay = createDateTime(
+        this.currentDate,
+        internal.until.getDay() + 1,
+        "00:00:00"
+      );
+
       internal.until.setDate(internal.until.getDate() + 1);
-      return [
+      result.push(
         {
           from: internal.from,
-          until: this.getTimeByCurrentDay([internal.from.getDay(), 23, 59, 0]),
+          until: untilPrevDay,
         },
         {
-          from: this.getTimeByCurrentDay([internal.until.getDay(), 0, 0, 0]),
+          from: fromNextDay,
           until: internal.until,
-        },
-      ];
+        }
+      );
+    } else {
+      result.push(internal);
     }
-    return [internal];
+
+    return result;
   }
 }
 

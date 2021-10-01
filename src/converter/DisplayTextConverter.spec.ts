@@ -4,7 +4,7 @@ import { DisplayTextConverter } from "./DisplayTextConverter";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
-  currentDate: new Date("2021-09-28T12:31:00-0400"),
+  currentDate: new Date("2021-09-28T12:31:00"),
   currentDayOnTop: false,
   locales: "de-DE",
   dateTimeFormatOptions: {
@@ -14,6 +14,7 @@ const defaultOptions: OpeningHoursOptions = {
   },
   text: {
     closed: "closed",
+    open: "open",
     timespanSeparator: " - ",
     weekDays: WeekDaysShort,
   },
@@ -31,19 +32,19 @@ describe("DisplayJsonConverter", () => {
         [
           /** monday */
           {
-            from: new Date("2021-09-28T08:00-0400"),
-            until: new Date("2021-09-28T14:00-0400"),
+            from: new Date("2021-09-28T08:00"),
+            until: new Date("2021-09-28T14:00"),
           },
         ],
         [
           /** tuesday */
           {
-            from: new Date("2021-09-28T08:00-0400"),
-            until: new Date("2021-09-28T12:00-0400"),
+            from: new Date("2021-09-28T08:00"),
+            until: new Date("2021-09-28T12:00"),
           },
           {
-            from: new Date("2021-09-28T12:30-0400"),
-            until: new Date("2021-09-28T17:30-0400"),
+            from: new Date("2021-09-28T12:30"),
+            until: new Date("2021-09-28T17:30"),
             text: "test",
           },
         ],

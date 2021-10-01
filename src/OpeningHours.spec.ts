@@ -326,13 +326,13 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
     openingHours.load([
       {
         day: 1,
-        from: "2020-09-07T06:30:00.000Z",
-        until: "2020-09-07T12:30:00.000Z",
+        from: "2020-09-07T08:30:00",
+        until: "2020-09-07T14:30:00",
       },
       {
         day: 1,
-        from: "2020-09-07T13:00:00.000Z",
-        until: "2020-09-07T18:00:00.000Z",
+        from: "2020-09-07T15:00:00",
+        until: "2020-09-07T20:00:00",
       },
     ]);
     expect(openingHours.toLocaleJSON()).toStrictEqual([
@@ -358,13 +358,13 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
     openingHours.load([
       {
         day: 1,
-        from: "2020-09-07T06:30:00.000Z",
-        until: "2020-09-07T12:30:00.000Z",
+        from: "2020-09-07T08:30:00",
+        until: "2020-09-07T14:30:00",
       },
       {
         day: 1,
-        from: "2020-09-07T13:00:00.000Z",
-        until: "2020-09-07T18:00:00.000Z",
+        from: "2020-09-07T15:00:00",
+        until: "2020-09-07T20:00:00",
       },
     ]);
     expect(openingHours.toString()).toBe("mon 08:30 - 14:30, 15:00 - 20:00");
@@ -375,7 +375,7 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - current date",
   it("toLocaleJSON", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
-      currentDate: new Date(2020, 8, 7),
+      currentDate: new Date("2020-09-07"),
     });
     openingHours.load([
       { day: 1, from: "0830", until: "1430" },
@@ -402,18 +402,18 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - current date",
   it("toString", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
-      currentDate: new Date(2020, 8, 7),
+      currentDate: new Date("2020-09-07"),
     });
     openingHours.load([
       {
         day: 1,
-        from: "2020-09-07T06:30:00.000Z",
-        until: "2020-09-07T12:30:00.000Z",
+        from: "2020-09-07T08:30:00",
+        until: "2020-09-07T14:30:00",
       },
       {
         day: 1,
-        from: "2020-09-07T13:00:00.000Z",
-        until: "2020-09-07T18:00:00.000Z",
+        from: "2020-09-07T15:00:00",
+        until: "2020-09-07T20:00:00",
       },
     ]);
     expect(openingHours.toString()).toBe("[mon 08:30 - 14:30, 15:00 - 20:00]");
@@ -498,20 +498,20 @@ describe("states and utility functions", () => {
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
-    expect(openingHours.getNextOpenTime(new Date("2020-09-07T08:00"))).toBe(
-      "08:30"
-    );
-    expect(openingHours.getNextOpenTime(new Date("2020-09-07T12:31"))).toBe(
-      "13:00"
-    );
-    // already open, should return the next open time
-    expect(openingHours.getNextOpenTime(new Date("2020-09-07T09:30"))).toBe(
-      "13:00"
-    );
+    expect(
+      openingHours.getNextOpenTime(new Date("2020-09-07T08:00+0200"))
+    ).toBe("08:30");
+    expect(
+      openingHours.getNextOpenTime(new Date("2020-09-07T12:31+0200"))
+    ).toBe("13:00");
+    // already open, should return it's open
+    expect(
+      openingHours.getNextOpenTime(new Date("2020-09-07T09:30+0200"))
+    ).toBe("open");
     // closed, should return closed
-    expect(openingHours.getNextOpenTime(new Date("2020-09-07T17:01"))).toBe(
-      "closed"
-    );
+    expect(
+      openingHours.getNextOpenTime(new Date("2020-09-07T17:01+0200"))
+    ).toBe("closed");
   });
 
   it("checks if closed soon (default: 30min)", () => {
@@ -633,8 +633,6 @@ describe("TimeZone/DST Check: Berlin: Mar 28, +02:00", () => {
   });
 
   it("current day is active", () => {
-    const beforeFrom = new Date(currentDate);
-    beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
     expect(openingHours.toString()).toBe("[sun 10:30 - 12:30]");
   });
 
@@ -695,8 +693,6 @@ describe("TimeZone/DST Check: Melbourne: Apr 3, +11:00", () => {
   });
 
   it("current day is active", () => {
-    const beforeFrom = new Date(currentDate);
-    beforeFrom.setMinutes(beforeFrom.getMinutes() - 1);
     expect(openingHours.toString()).toBe("[sat 10:30 am - 12:30 pm]");
   });
 
@@ -723,7 +719,7 @@ describe("TimeZone/DST Check: Melbourne: Apr 3, +11:00", () => {
 
   it("getState() = Closed, isOpenSoon() = false, isClosedSoon() = false", () => {
     const afterUntil = new Date(currentDate);
-    afterUntil.setMinutes(afterUntil.getMinutes() + 121);
+    afterUntil.setMinutes(afterUntil.getMinutes() + 181);
 
     expect(openingHours.getState(afterUntil)).toBe(OpenState.Closed);
     expect(openingHours.isOpenSoon(afterUntil)).toBeFalsy();

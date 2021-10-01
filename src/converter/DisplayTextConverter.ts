@@ -1,6 +1,5 @@
 import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
 import { Converter } from "../Converter";
-import { createDateTime } from "../helpers";
 import { DisplayJsonConverter } from "./DisplayJsonConverter";
 
 export class DisplayTextConverter

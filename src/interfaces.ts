@@ -52,5 +52,6 @@ export declare interface OpeningHoursOptions {
     timespanSeparator: string;
     weekDays: string[];
     closed: string;
+    open: string;
   };
 }

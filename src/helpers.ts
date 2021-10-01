@@ -5,6 +5,7 @@ export function toRemoteDate(date: Date, timeZone?: string) {
   if (!timeZone) {
     timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
+
   const offsetDate = new Date(
     date.toLocaleString("sv", { timeZone }).replace(" ", "T")
   );
@@ -60,56 +61,58 @@ export function mergeTimespans(times: OpenTimeInternal[]) {
 
 export function cutTimespans(
   openTimes: OpenTimeInternal[][],
-  removables: unknown[]
+  removableTimes: OpenTimeInternal[][]
 ) {
-  for (const removable of removables as OpenTimeInternal[]) {
-    if (!removable) {
+  for (const [day, removables] of removableTimes.entries()) {
+    if (0 === removables.length) {
       continue;
     }
-    const times = openTimes[removable.from.getDay()];
-    const tmp = times.splice(0);
-    for (const time of tmp) {
-      // no remove operation needed
-      if (time.from > removable.until || time.until < removable.from) {
-        times.push(time);
-      }
+    for (const removable of removables) {
+      const times = openTimes[day];
+      const tmp = times.splice(0);
+      for (const time of tmp) {
+        // no remove operation needed
+        if (time.from > removable.until || time.until < removable.from) {
+          times.push(time);
+        }
 
-      // cut in two time objects
-      else if (time.from < removable.from && time.until > removable.until) {
-        times.push(
-          {
-            from: time.from,
-            until: removable.from,
-          },
-          {
+        // cut in two time objects
+        else if (time.from < removable.from && time.until > removable.until) {
+          times.push(
+            {
+              from: time.from,
+              until: removable.from,
+            },
+            {
+              from: removable.until,
+              until: time.until,
+            }
+          );
+        }
+
+        // cut start time (from)
+        else if (
+          time.from >= removable.from &&
+          time.from <= removable.until &&
+          time.until > removable.until
+        ) {
+          times.push({
             from: removable.until,
             until: time.until,
-          }
-        );
-      }
+          });
+        }
 
-      // cut start time (from)
-      else if (
-        time.from >= removable.from &&
-        time.from <= removable.until &&
-        time.until > removable.until
-      ) {
-        times.push({
-          from: removable.until,
-          until: time.until,
-        });
-      }
-
-      // cut end time (until)
-      else if (
-        time.until <= removable.until &&
-        time.until >= removable.from &&
-        time.from < removable.from
-      ) {
-        times.push({
-          from: time.from,
-          until: removable.from,
-        });
+        // cut end time (until)
+        else if (
+          time.until <= removable.until &&
+          time.until >= removable.from &&
+          time.from < removable.from
+        ) {
+          times.push({
+            from: time.from,
+            until: removable.from,
+          });
+        }
       }
     }
   }
@@ -136,11 +139,8 @@ export function getState(
   const current = fromRemoteDate(now, timeZone);
   const day = current.getDay();
   for (const time of openTimes[day]) {
-    const from = fromRemoteDate(combineDateTime(current, time.from), timeZone);
-    const until = fromRemoteDate(
-      combineDateTime(current, time.until),
-      timeZone
-    );
+    const from = time.from;
+    const until = time.until;
     if (from <= current && until >= current) {
       return OpenState.Open;
     }

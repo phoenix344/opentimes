@@ -4,7 +4,7 @@ import {
   OpenTimeInternal,
 } from "../interfaces";
 import { Converter } from "../Converter";
-import { createDateTime, fromRemoteDate, toRemoteDate } from "../helpers";
+import { createDateTime, toRemoteDate } from "../helpers";
 
 export class DataJsonConverter
   implements Converter<OpenTimeOutput[], OpeningHoursOptions>
@@ -26,12 +26,8 @@ export class DataJsonConverter
       for (const { from, until, text } of input[i]) {
         result.push({
           day: i,
-          from: fromRemoteDate(from, options.dateTimeFormatOptions.timeZone)
-            .toLocaleTimeString("sv", format)
-            .replace(/:/g, ""),
-          until: fromRemoteDate(until, options.dateTimeFormatOptions.timeZone)
-            .toLocaleTimeString("sv", format)
-            .replace(/:/g, ""),
+          from: from.toLocaleTimeString("sv", format).replace(/:/g, ""),
+          until: until.toLocaleTimeString("sv", format).replace(/:/g, ""),
           text,
         });
       }
@@ -46,21 +42,15 @@ export class DataJsonConverter
 
     for (const { day, from, until, text } of input) {
       times[day].push({
-        from: toRemoteDate(
-          createDateTime(
-            currentDate,
-            day,
-            from.match(/\d{2}/g)?.join(":") || "00:00"
-          ),
-          options.dateTimeFormatOptions.timeZone
+        from: createDateTime(
+          currentDate,
+          day,
+          from.match(/\d{2}/g)?.join(":") || "00:00"
         ),
-        until: toRemoteDate(
-          createDateTime(
-            currentDate,
-            day,
-            until.match(/\d{2}/g)?.join(":") || "00:00"
-          ),
-          options.dateTimeFormatOptions.timeZone
+        until: createDateTime(
+          currentDate,
+          day,
+          until.match(/\d{2}/g)?.join(":") || "00:00"
         ),
         text,
       });

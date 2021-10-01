@@ -14,22 +14,14 @@ export class DisplayJsonConverter
     const format: Intl.DateTimeFormatOptions = {
       ...options.dateTimeFormatOptions,
     };
+    const timeZone = options.dateTimeFormatOptions.timeZone;
     delete format.timeZone;
 
     const { currentDate, locales } = options;
     const weekDays = options.text?.weekDays || WeekDaysShort;
-
-    // make sure the timeZone is set with a value.
-    // At least the local time of the current client.
-    const { timeZone } = Intl.DateTimeFormat(
-      options.locales,
-      options.dateTimeFormatOptions
-    ).resolvedOptions();
-
-    const current = fromRemoteDate(currentDate as Date, timeZone);
     const openTimes = [];
     for (const [day, times] of input.entries()) {
-      const active = current.getDay() === day;
+      const active = fromRemoteDate(currentDate, timeZone).getDay() === day;
       if (times.length === 0) {
         // create an object if showClosedDays is enabled.
         openTimes[day] = options.showClosedDays
@@ -46,14 +38,8 @@ export class DisplayJsonConverter
           active,
           day: weekDays[day],
           times: times.map((time) => {
-            const fromDate = fromRemoteDate(
-              time.from,
-              options.dateTimeFormatOptions.timeZone
-            );
-            const untilDate = fromRemoteDate(
-              time.until,
-              options.dateTimeFormatOptions.timeZone
-            );
+            const fromDate = time.from;
+            const untilDate = time.until;
 
             if (untilDate.getHours() === 0 && untilDate.getMinutes() === 0) {
               untilDate.setHours(23);
@@ -98,9 +84,10 @@ export class DisplayJsonConverter
    */
   private setLeadingDay<T>(result: T[], options: Partial<OpeningHoursOptions>) {
     const { currentDate, currentDayOnTop, weekStart } = options;
+    const timeZone = options.dateTimeFormatOptions?.timeZone;
     const weekDay =
       currentDate && currentDayOnTop
-        ? currentDate.getDay()
+        ? fromRemoteDate(currentDate, timeZone).getDay()
         : weekStart !== undefined
         ? weekStart
         : 0;

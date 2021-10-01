@@ -1,6 +1,7 @@
 import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
 import { Converter } from "../Converter";
-import { combineDateTime, createDateTime } from "../helpers";
+import { fromRemoteDate, createDateTime } from "../helpers";
+import { toRemoteDate } from "../../lib/es6/helpers";
 
 const mapping = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
@@ -11,22 +12,16 @@ export class MicrodataConverter
     const format: Intl.DateTimeFormatOptions = {
       ...options.dateTimeFormatOptions,
     };
-    // delete format.timeZone;
+    delete format.timeZone;
 
     const tmp: { [span: string]: number[] } = {};
 
     for (const [day, spans] of input.entries()) {
       for (const { from, until } of spans) {
         const span =
-          combineDateTime(options.currentDate, from).toLocaleTimeString(
-            "sv",
-            format
-          ) +
+          from.toLocaleTimeString("sv", format) +
           "-" +
-          combineDateTime(options.currentDate, until).toLocaleTimeString(
-            "sv",
-            format
-          );
+          until.toLocaleTimeString("sv", format);
         if (!tmp[span]) {
           tmp[span] = [day];
         } else if (!tmp[span].includes(day)) {
