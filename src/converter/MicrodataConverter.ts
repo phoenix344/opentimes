@@ -1,7 +1,6 @@
 import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
 import { Converter } from "../Converter";
-import { fromRemoteDate, createDateTime } from "../helpers";
-import { toRemoteDate } from "../../lib/es6/helpers";
+import { createDateTime } from "../helpers";
 
 const mapping = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 

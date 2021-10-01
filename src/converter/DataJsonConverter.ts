@@ -4,7 +4,7 @@ import {
   OpenTimeInternal,
 } from "../interfaces";
 import { Converter } from "../Converter";
-import { createDateTime, toRemoteDate } from "../helpers";
+import { createDateTime } from "../helpers";
 
 export class DataJsonConverter
   implements Converter<OpenTimeOutput[], OpeningHoursOptions>

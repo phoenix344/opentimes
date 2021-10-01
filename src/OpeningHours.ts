@@ -3,7 +3,6 @@ import { DataJsonConverter } from "./converter/DataJsonConverter";
 import { DisplayJsonConverter } from "./converter/DisplayJsonConverter";
 import { DisplayTextConverter } from "./converter/DisplayTextConverter";
 import {
-  combineDateTime,
   createDateTime,
   cutTimespans,
   fromRemoteDate,
