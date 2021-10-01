@@ -1,14 +1,14 @@
-import { fromRemoteDate } from "./helpers";
+import { fromRemoteDate, toRemoteDate } from "./helpers";
 
 describe("helpers", () => {
-  it("toLocaleDate(date, options)", () => {
+  it("toRemoteDate(date, options)", () => {
     const a = new Date("2021-09-30T12:30");
     const b = new Date("2021-09-30T12:30-0400");
     expect(toRemoteDate(a, "America/New_York")).toStrictEqual(b);
     expect(toRemoteDate(a, "Australia/Melbourne")).not.toStrictEqual(b);
   });
 
-  it("fromLocaleDate(date, options)", () => {
+  it("fromRemoteDate(date, options)", () => {
     const a = new Date("2021-09-30T12:30");
     const b = new Date("2021-09-30T12:30-0400");
     expect(fromRemoteDate(b, "America/New_York")).toStrictEqual(a);
