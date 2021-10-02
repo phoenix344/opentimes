@@ -256,19 +256,6 @@ export class OpeningHours {
     postOptimize(this.internalTimes.default);
   }
 
-  /**
-   * loading a list of time objects and optimize them
-   */
-  load(times: OpenTimeInput[]) {
-    const normalizer = new Normalizer(this.options);
-    this.internalTimes.default.forEach((times) => times.splice(0));
-    for (const time of times) {
-      const optimized = normalizer.normalize(time);
-      insertOpenTime(optimized, this.internalTimes.default);
-    }
-    postOptimize(this.internalTimes.default);
-  }
-
   fromJSON(times: OpenTimeInput[], options: Partial<OpeningHoursOptions> = {}) {
     const converter = new Json();
     this.internalTimes.default.splice(0);

@@ -244,7 +244,7 @@ describe('cut(weekDay, "h:mm", "h:mm")', () => {
   });
   it("cut multiple", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0800", until: "1600" },
       { day: 2, from: "0800", until: "1600" },
       { day: 3, from: "0800", until: "1600" },
@@ -290,10 +290,10 @@ describe('cut(weekDay, "h:mm", "h:mm")', () => {
   });
 });
 
-describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current date", () => {
+describe("fromJSON(Array<{day, from: ISOString, until: ISOString}>) - after current date", () => {
   it("toJSON", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       {
         day: 1,
         from: "2020-09-07T08:30:00",
@@ -323,7 +323,7 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
 
   it("toLocaleJSON", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       {
         day: 1,
         from: "2020-09-07T08:30:00",
@@ -355,7 +355,7 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
 
   it("toString", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       {
         day: 1,
         from: "2020-09-07T08:30:00",
@@ -371,13 +371,13 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - after current 
   });
 });
 
-describe("load(Array<{day, from: ISOString, until: ISOString}>) - current date", () => {
+describe("fromJSON(Array<{day, from: ISOString, until: ISOString}>) - current date", () => {
   it("toLocaleJSON", () => {
     const openingHours = new OpeningHours({
       ...defaultOptions,
       currentDate: new Date("2020-09-07"),
     });
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1430" },
       { day: 1, from: "1500", until: "2000" },
     ]);
@@ -404,7 +404,7 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - current date",
       ...defaultOptions,
       currentDate: new Date("2020-09-07"),
     });
-    openingHours.load([
+    openingHours.fromJSON([
       {
         day: 1,
         from: "2020-09-07T08:30:00",
@@ -423,7 +423,7 @@ describe("load(Array<{day, from: ISOString, until: ISOString}>) - current date",
 describe("states and utility functions", () => {
   it("checks states", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
@@ -456,7 +456,7 @@ describe("states and utility functions", () => {
 
   it("checks if open soon (default: 30min)", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
@@ -480,7 +480,7 @@ describe("states and utility functions", () => {
 
   it("checks if open soon (custom: 15min)", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
@@ -494,7 +494,7 @@ describe("states and utility functions", () => {
 
   it("returns next open time", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
@@ -516,7 +516,7 @@ describe("states and utility functions", () => {
 
   it("checks if closed soon (default: 30min)", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
@@ -540,7 +540,7 @@ describe("states and utility functions", () => {
 
   it("checks if closed soon (custom: 15min)", () => {
     const openingHours = new OpeningHours(defaultOptions);
-    openingHours.load([
+    openingHours.fromJSON([
       { day: 1, from: "0830", until: "1230" },
       { day: 1, from: "1300", until: "1700" },
     ]);
