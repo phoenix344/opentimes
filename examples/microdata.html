@@ -14,27 +14,18 @@
     import { OpeningHours, WeekDays } from "../lib/esnext/index.esm.js";
 
     const oh = new OpeningHours({
-      currentDate: new Date(2020, 8, 15),
+      currentDate: new Date("2020-09-15"),
       text: {
         weekDays: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
       },
     });
 
-    oh.add(WeekDays.Monday, "08:00", "12:30");
-    oh.add(WeekDays.Monday, "13:00", "16:00");
-
-    oh.add(WeekDays.Tuesday, "08:00", "12:30");
-    oh.add(WeekDays.Tuesday, "13:00", "16:00");
-
-    oh.add(WeekDays.Wednesday, "08:00", "14:00");
-
-    oh.add(WeekDays.Thursday, "08:00", "12:30");
-    oh.add(WeekDays.Thursday, "13:00", "16:00");
-
-    oh.add(WeekDays.Friday, "08:00", "12:30");
-    oh.add(WeekDays.Friday, "13:00", "16:00");
-
-    oh.add(WeekDays.Saturday, "10:00", "14:00");
+    oh.fromMicrodata([
+      "Mo,Tu,Th 09:00-12:30",
+      "Tu,We-Fr 13:00-16:00",
+      "We 06:00-10:00",
+      "Sa 10:00-14:00",
+    ]);
 
     document.querySelector("pre").innerHTML = oh.toString();
   </script>
