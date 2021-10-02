@@ -1,6 +1,6 @@
 import { OpeningHoursOptions } from "../interfaces";
 import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { DisplayJsonConverter } from "./DisplayJsonConverter";
+import { DisplayJson } from "./DisplayJson";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -21,9 +21,9 @@ const defaultOptions: OpeningHoursOptions = {
   showClosedDays: false,
 };
 
-describe("DisplayJsonConverter", () => {
+describe("DisplayJson", () => {
   it("::toData(input, options?)", () => {
-    const converter = new DisplayJsonConverter();
+    const converter = new DisplayJson();
     const [monday, tuesday] = converter.toData(
       [
         [
@@ -75,29 +75,5 @@ describe("DisplayJsonConverter", () => {
     expect(tuesday.times[1].from).toBe("12:30");
     expect(tuesday.times[1].until).toBe("17:30");
     expect(tuesday.active).toBe(true);
-  });
-
-  it("::fromData(input, options?)", () => {
-    const converter = new DisplayJsonConverter();
-    expect(() =>
-      converter.fromData(
-        [
-          {
-            day: "mon",
-            active: false,
-            times: [{ from: "08:00", until: "14:00" }],
-          },
-          {
-            day: "tue",
-            active: true,
-            times: [
-              { from: "08:00", until: "12:00" },
-              { from: "12:30", until: "17:30" },
-            ],
-          },
-        ],
-        defaultOptions
-      )
-    ).toThrow("Not supported!");
   });
 });

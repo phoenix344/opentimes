@@ -1,6 +1,9 @@
 import { OpeningHoursOptions, OpenTimeInternal } from "./interfaces";
 
-export interface Converter<T, U extends OpeningHoursOptions> {
-  toData(input: OpenTimeInternal[][], options: U): T;
-  fromData(input: T, options: U): OpenTimeInternal[][];
+export interface Importer<Input, Options extends OpeningHoursOptions> {
+  fromData(input: Input, options: Options): OpenTimeInternal[][];
+}
+
+export interface Exporter<Output, Options extends OpeningHoursOptions> {
+  toData(input: OpenTimeInternal[][], options: Options): Output;
 }

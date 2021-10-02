@@ -15,13 +15,13 @@ export declare interface OpenTimeInternal {
 
 export declare interface OpenTimeInput extends DateTimeObject {
   day: WeekDays;
+  text?: string;
 }
 
-export declare interface OpenTimeRemovableInput {
+export declare interface OpenTimeRemovableInput
+  extends Partial<DateTimeObject> {
   day?: WeekDays;
   days?: WeekDays[];
-  from?: DateType;
-  until?: DateType;
   spans?: Partial<DateTimeObject>[];
 }
 

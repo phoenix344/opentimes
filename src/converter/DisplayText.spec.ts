@@ -1,6 +1,6 @@
 import { OpeningHoursOptions } from "../interfaces";
 import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { DisplayTextConverter } from "./DisplayTextConverter";
+import { DisplayText } from "./DisplayText";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -23,7 +23,7 @@ const defaultOptions: OpeningHoursOptions = {
 
 describe("DisplayJsonConverter", () => {
   it("::toData(input, options?)", () => {
-    const converter = new DisplayTextConverter();
+    const converter = new DisplayText();
     const result = converter.toData(
       [
         [
@@ -67,16 +67,5 @@ describe("DisplayJsonConverter", () => {
     expect(result).toBe(
       "mon 08:00 - 14:00" + "\n" + "[tue 08:00 - 12:00, 12:30 - 17:30]"
     );
-  });
-
-  it("::fromData(input, options?)", () => {
-    const converter = new DisplayTextConverter();
-
-    expect(() =>
-      converter.fromData(
-        "mon 08:00 - 14:00" + "\n" + "[tue 08:00 - 12:00, 12:30 - 17:30]",
-        defaultOptions
-      )
-    ).toThrow("Not supported!");
   });
 });

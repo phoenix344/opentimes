@@ -1,13 +1,17 @@
 import {
+  OpenTimeInput,
   OpenTimeOutput,
   OpeningHoursOptions,
   OpenTimeInternal,
 } from "../interfaces";
-import { Converter } from "../Converter";
-import { createDateTime } from "../helpers";
+import { Exporter, Importer } from "../Converter";
+import { Normalizer } from "../core/Normalizer";
+import { insertOpenTime, postOptimize } from "../helpers";
 
-export class DataJsonConverter
-  implements Converter<OpenTimeOutput[], OpeningHoursOptions>
+export class Json
+  implements
+    Importer<OpenTimeInput[], OpeningHoursOptions>,
+    Exporter<OpenTimeOutput[], OpeningHoursOptions>
 {
   toData(
     input: OpenTimeInternal[][],
@@ -36,25 +40,15 @@ export class DataJsonConverter
     return result;
   }
 
-  fromData(input: OpenTimeOutput[], options: OpeningHoursOptions) {
+  fromData(input: OpenTimeInput[], options: OpeningHoursOptions) {
     const times: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
-    const currentDate = options.currentDate || new Date();
+    const normalizer = new Normalizer(options);
 
-    for (const { day, from, until, text } of input) {
-      times[day].push({
-        from: createDateTime(
-          currentDate,
-          day,
-          from.match(/\d{2}/g)?.join(":") || "00:00"
-        ),
-        until: createDateTime(
-          currentDate,
-          day,
-          until.match(/\d{2}/g)?.join(":") || "00:00"
-        ),
-        text,
-      });
+    for (const data of input) {
+      const chunk = normalizer.normalize(data);
+      insertOpenTime(chunk, times);
     }
+    postOptimize(times);
     return times;
   }
 }

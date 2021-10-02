@@ -1,11 +1,16 @@
 import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
-import { Converter } from "../Converter";
-import { createDateTime } from "../helpers";
+import { createDateTime, insertOpenTime, postOptimize } from "../helpers";
+import { Exporter, Importer } from "../Converter";
+import { Normalizer } from "../core/Normalizer";
 
 const mapping = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-export class MicrodataConverter
-  implements Converter<string | string[], OpeningHoursOptions>
+export declare type MicrodataFormat = string | string[];
+
+export class Microdata
+  implements
+    Importer<MicrodataFormat, OpeningHoursOptions>,
+    Exporter<MicrodataFormat, OpeningHoursOptions>
 {
   toData(input: OpenTimeInternal[][], options: OpeningHoursOptions) {
     const format: Intl.DateTimeFormatOptions = {
@@ -60,7 +65,7 @@ export class MicrodataConverter
   }
 
   fromData(
-    input: string | string[],
+    input: MicrodataFormat,
     options: OpeningHoursOptions
   ): OpenTimeInternal[][] {
     const times: OpenTimeInternal[][] = [[], [], [], [], [], [], []];
@@ -68,6 +73,7 @@ export class MicrodataConverter
     const rows = "string" === typeof input ? [input] : input;
     const daysRE = /[a-z]{2}-[a-z]{2}|[a-z]{2}/gi;
     const timeRE = /\d{2}:\d{2}:\d{2}|\d{2}:\d{2}/g;
+    const normalizer = new Normalizer(options);
     for (const row of rows) {
       const dayspan = row.match(daysRE) || [];
       const [fromStr, untilStr] = row.match(timeRE) || ["00:00", "23:59"];
@@ -82,14 +88,17 @@ export class MicrodataConverter
               ((endDay < startDay && (i <= endDay || i >= startDay)) ||
                 (i >= startDay && i <= endDay)))
           ) {
-            times[i].push({
+            const chunk = normalizer.normalize({
+              day: i,
               from: createDateTime(currentDate, i, fromStr),
               until: createDateTime(currentDate, i, untilStr),
             });
+            insertOpenTime(chunk, times);
           }
         }
       }
     }
+    postOptimize(times);
     return times;
   }
 }

@@ -148,3 +148,16 @@ export function createDateTime(date: Date, day: number, timeStr: string) {
   datetime.setDate(datetime.getDate() + offset);
   return datetime;
 }
+
+/**
+ * creates an entry in the correct day array
+ */
+export function insertOpenTime(
+  input: OpenTimeInternal[],
+  output: OpenTimeInternal[][]
+) {
+  for (const time of input) {
+    const times = output[time.from.getDay()];
+    times.push({ ...time });
+  }
+}

@@ -1,7 +1,7 @@
-import { MicrodataConverter } from "./converter/MicrodataConverter";
-import { DataJsonConverter } from "./converter/DataJsonConverter";
-import { DisplayJsonConverter } from "./converter/DisplayJsonConverter";
-import { DisplayTextConverter } from "./converter/DisplayTextConverter";
+import { Microdata } from "./converter/Microdata";
+import { Json } from "./converter/Json";
+import { DisplayJson } from "./converter/DisplayJson";
+import { DisplayText } from "./converter/DisplayText";
 import {
   createDateTime,
   cutTimespans,
@@ -16,6 +16,7 @@ import {
   DateType,
   OpenTimeRemovableInput,
   OpenTimeInput,
+  OpenTimeOutput,
 } from "./interfaces";
 import { WeekDays, WeekDaysShort } from "./WeekDays";
 
@@ -269,11 +270,41 @@ export class OpeningHours {
     postOptimize(this.internalTimes.default);
   }
 
+  fromJSON(
+    times: OpenTimeOutput[],
+    options: Partial<OpeningHoursOptions> = {}
+  ) {
+    const converter = new Json();
+    this.internalTimes.default.splice(0);
+
+    const internalTimes = converter.fromData(times, {
+      ...this.options,
+      ...options,
+    });
+
+    this.internalTimes.default.push(...internalTimes);
+  }
+
+  fromMicrodata(
+    times: string | string[],
+    options: Partial<OpeningHoursOptions> = {}
+  ) {
+    const converter = new Microdata();
+    this.internalTimes.default.splice(0);
+
+    const internalTimes = converter.fromData(times, {
+      ...this.options,
+      ...options,
+    });
+
+    this.internalTimes.default.push(...internalTimes);
+  }
+
   /**
    * Creates normalized JSON format.
    */
   toJSON(options?: Partial<OpeningHoursOptions>) {
-    const converter = new DataJsonConverter();
+    const converter = new Json();
     return converter.toData(this.times, {
       ...this.options,
       ...(options || {}),
@@ -284,7 +315,7 @@ export class OpeningHours {
    * Creates an array output for opening hours.
    */
   toLocaleJSON(options?: Partial<OpeningHoursOptions>) {
-    const converter = new DisplayJsonConverter();
+    const converter = new DisplayJson();
     return converter.toData(this.times, {
       ...this.options,
       ...(options || {}),
@@ -296,7 +327,7 @@ export class OpeningHours {
    * in microdata format.
    */
   toMicrodata(options?: Partial<OpeningHoursOptions>) {
-    const converter = new MicrodataConverter();
+    const converter = new Microdata();
     return converter.toData(this.times, {
       ...this.options,
       ...(options || {}),
@@ -307,7 +338,7 @@ export class OpeningHours {
    * Creates a string output for opening hours.
    */
   toString(options?: Partial<OpeningHoursOptions>) {
-    const converter = new DisplayTextConverter();
+    const converter = new DisplayText();
     return converter.toData(this.times, {
       ...this.options,
       ...(options || {}),

@@ -1,6 +1,6 @@
 import { OpeningHoursOptions } from "../interfaces";
 import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { DataJsonConverter } from "./DataJsonConverter";
+import { Json } from "./Json";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -21,9 +21,9 @@ const defaultOptions: OpeningHoursOptions = {
   showClosedDays: false,
 };
 
-describe("DataJsonConverter", () => {
+describe("Json", () => {
   it("::toData(input, options?)", () => {
-    const converter = new DataJsonConverter();
+    const converter = new Json();
     const [monday, tuesdayMorning, tuesdayAfternoon] = converter.toData(
       [
         [
@@ -81,7 +81,7 @@ describe("DataJsonConverter", () => {
   });
 
   it("::fromData(input, options?)", () => {
-    const converter = new DataJsonConverter();
+    const converter = new Json();
     const result = converter.fromData(
       [
         {

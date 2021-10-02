@@ -1,5 +1,5 @@
 import { fromRemoteDate } from "../helpers";
-import { Converter } from "../Converter";
+import { Exporter } from "../Converter";
 import {
   OpenTimeResultOutput,
   OpeningHoursOptions,
@@ -7,8 +7,8 @@ import {
 } from "../interfaces";
 import { WeekDaysShort } from "../WeekDays";
 
-export class DisplayJsonConverter
-  implements Converter<OpenTimeResultOutput[], OpeningHoursOptions>
+export class DisplayJson
+  implements Exporter<OpenTimeResultOutput[], OpeningHoursOptions>
 {
   toData(input: OpenTimeInternal[][], options: OpeningHoursOptions) {
     const format: Intl.DateTimeFormatOptions = {
@@ -69,13 +69,6 @@ export class DisplayJsonConverter
       }
     }
     return result as OpenTimeResultOutput[];
-  }
-
-  fromData(
-    input: OpenTimeResultOutput[],
-    options: OpeningHoursOptions
-  ): OpenTimeInternal[][] {
-    throw new Error("Not supported!");
   }
 
   /**

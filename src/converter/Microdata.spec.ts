@@ -1,6 +1,6 @@
 import { OpeningHoursOptions } from "../interfaces";
 import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { MicrodataConverter } from "./MicrodataConverter";
+import { Microdata } from "./Microdata";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -23,7 +23,7 @@ const defaultOptions: OpeningHoursOptions = {
 
 describe("Microdata converter", () => {
   it("creates single string output", () => {
-    const microdata = new MicrodataConverter();
+    const microdata = new Microdata();
     const result = microdata.toData(
       [
         [
@@ -82,7 +82,7 @@ describe("Microdata converter", () => {
   });
 
   it("creates multiple string output", () => {
-    const microdata = new MicrodataConverter();
+    const microdata = new Microdata();
     const result = microdata.fromData(
       ["Mo,We-Fr 08:00-14:00", "Tu 08:00-12:00", "Tu 12:30-17:30"],
       defaultOptions
