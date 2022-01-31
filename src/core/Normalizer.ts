@@ -24,10 +24,16 @@ export class Normalizer {
         "23:59:00"
       );
 
-      const fromNextDay = createDateTime(
+      const nextDayFrom = createDateTime(
         this.options.currentDate,
         internal.until.getDay() + 1,
         "00:00:00"
+      );
+
+      const nextDayUntil = createDateTime(
+        this.options.currentDate,
+        internal.until.getDay() + 1,
+        internal.until.toLocaleTimeString("sv")
       );
 
       internal.until.setDate(internal.until.getDate() + 1);
@@ -37,8 +43,8 @@ export class Normalizer {
           until: untilPrevDay,
         },
         {
-          from: fromNextDay,
-          until: internal.until,
+          from: nextDayFrom,
+          until: nextDayUntil,
         }
       );
     } else {

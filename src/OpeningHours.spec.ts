@@ -788,3 +788,50 @@ describe("TimeZone/DST Check: Melbourne: Apr 4, +10:00", () => {
     expect(openingHours.isClosedSoon(afterUntil)).toBeFalsy();
   });
 });
+
+describe("TimeZone/DST Check: Melbourne: Dec 5, +10:00", () => {
+  let currentDate: string;
+  let openingHours: OpeningHours;
+
+  beforeEach(() => {
+    currentDate = "2022-01-30T10:30:00+1000";
+    openingHours = new OpeningHours({
+      currentDate: new Date(currentDate),
+      locales: "de-DE",
+      weekStart: WeekDays.Sunday,
+      dateTimeFormatOptions: {
+        timeZone: "Australia/Melbourne",
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    });
+    openingHours.add(WeekDays.Sunday, "10:30", "12:30");
+  });
+
+  it("tests overlapping times on current day", () => {
+    openingHours.add(WeekDays.Monday, "1000", "1600");
+    openingHours.add(WeekDays.Monday, "2200", "0300");
+    openingHours.add(WeekDays.Tuesday, "1000", "1600");
+    openingHours.add(WeekDays.Tuesday, "2200", "0300");
+    openingHours.add(WeekDays.Wednesday, "1000", "1600");
+    openingHours.add(WeekDays.Wednesday, "2200", "0300");
+    openingHours.add(WeekDays.Thursday, "1000", "1600");
+    openingHours.add(WeekDays.Thursday, "2200", "0300");
+    openingHours.add(WeekDays.Friday, "1000", "1600");
+    openingHours.add(WeekDays.Friday, "2200", "0300");
+    openingHours.add(WeekDays.Saturday, "1000", "1600");
+    openingHours.add(WeekDays.Saturday, "1700", "0200");
+    openingHours.add(WeekDays.Sunday, "1000", "1600");
+    openingHours.add(WeekDays.Sunday, "1700", "0200");
+    expect(openingHours.toString()).toBe(
+      "[sun 00:00 - 02:00, 10:00 - 16:00, 17:00 - 23:59]\n" +
+        "mon 00:00 - 02:00, 10:00 - 16:00, 22:00 - 23:59\n" +
+        "tue 00:00 - 03:00, 10:00 - 16:00, 22:00 - 23:59\n" +
+        "wed 00:00 - 03:00, 10:00 - 16:00, 22:00 - 23:59\n" +
+        "thu 00:00 - 03:00, 10:00 - 16:00, 22:00 - 23:59\n" +
+        "fri 00:00 - 03:00, 10:00 - 16:00, 22:00 - 23:59\n" +
+        "sat 00:00 - 03:00, 10:00 - 16:00, 17:00 - 23:59"
+    );
+  });
+});

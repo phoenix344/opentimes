@@ -145,7 +145,7 @@ export function createDateTime(date: Date, day: number, timeStr: string) {
   const [dateStr] = date.toISOString().split("T");
   const datetime = new Date(dateStr + "T" + timeStr);
   const offset = day - datetime.getDay();
-  datetime.setDate(datetime.getDate() + offset);
+  datetime.setDate(datetime.getDate() + (day < 7 ? offset : 0));
   return datetime;
 }
 
