@@ -22,27 +22,21 @@ export default [
     input: "src/index.ts",
     output: [
       {
-        file: "lib/es6/index.cjs.js",
-        format: "cjs",
+        file: "lib/opening-hours.umd.js",
+        format: "umd",
         exports: "named",
+        name: 'p34',
         sourcemap: !isProduction,
       },
       {
-        file: "lib/es6/index.esm.js",
+        file: "lib/opening-hours.esm.js",
         format: "es",
-        exports: "named",
-        sourcemap: !isProduction,
-      },
-      {
-        file: "lib/es6/index.iife.js",
-        format: "iife",
-        name: "p34",
         exports: "named",
         sourcemap: !isProduction,
       },
     ],
     plugins: [
-      cleaner(["lib/es6/"]),
+      cleaner(["lib"]),
       resolve({
         extensions,
         preferBuiltins: true,
@@ -52,7 +46,7 @@ export default [
         tsConfigPath: "tsconfig.json",
         tsconfigOverride: {
           declaration: true,
-          declarationDir: "lib/es6/types",
+          declarationDir: "lib/types",
         },
       }),
       babel({
@@ -63,44 +57,5 @@ export default [
       ...plugins,
     ],
   },
-  {
-    input: "src/index.ts",
-    output: [
-      {
-        file: "lib/esnext/index.cjs.js",
-        format: "cjs",
-        exports: "named",
-        sourcemap: !isProduction,
-      },
-      {
-        file: "lib/esnext/index.esm.js",
-        format: "es",
-        exports: "named",
-        sourcemap: !isProduction,
-      },
-      {
-        file: "lib/esnext/index.iife.js",
-        format: "iife",
-        name: "p34",
-        exports: "named",
-        sourcemap: !isProduction,
-      },
-    ],
-    plugins: [
-      cleaner(["lib/esnext/"]),
-      resolve({
-        extensions,
-        preferBuiltins: true,
-      }),
-      typescript({
-        abortOnError: true,
-        tsConfigPath: "tsconfig.json",
-        tsconfigOverride: {
-          declaration: true,
-          declarationDir: "lib/esnext/types",
-        },
-      }),
-      ...plugins,
-    ],
-  },
+
 ];

@@ -17,5 +17,5 @@
     "types": ["jest"]
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.spec.ts", "lib/**/*.js"]
+  "exclude": ["**/*.spec.ts", "lib/**/*"]
 }
