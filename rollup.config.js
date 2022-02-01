@@ -4,17 +4,8 @@ import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
 import analyzer from "rollup-plugin-analyzer";
 import babel from "@rollup/plugin-babel";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const isProduction = process.env.BUILD === "production";
-const plugins = isProduction
-  ? [
-    terser(),
-    analyzer({ summaryOnly: true })
-  ]
-  : [];
 const extensions = [".js", ".jsx", ".ts", ".tsx"];
 
 export default [
@@ -54,7 +45,14 @@ export default [
         babelHelpers: "bundled",
         presets: ["@babel/preset-env", "@babel/typescript"],
       }),
-      ...plugins,
+      ...(
+        isProduction
+          ? [
+            terser(),
+            analyzer({ summaryOnly: true })
+          ]
+          : []
+      ),
     ],
   },
 
