@@ -1,6 +1,6 @@
 # OpeningHours
 
-[![<ORG_NAME>](https://circleci.com/github/phoenix344/opening-hours.svg.svg?style=svg)](https://app.circleci.com/pipelines/github/phoenix344/opening-hours?filter=all)
+[![CircleCI](https://circleci.com/gh/phoenix344/opening-hours/tree/master.svg?style=svg)](https://circleci.com/gh/phoenix344/opening-hours/tree/master)
 
 A plain typescript/ES6+ opening hours library with no external dependencies.
 
