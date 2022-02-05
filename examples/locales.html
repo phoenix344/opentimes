@@ -1,60 +1,59 @@
 <!DOCTYPE html>
 <html>
-<title>Locales Example</title>
-<meta charset="utf-8">
-<style>
+  <title>Locales Example</title>
+  <meta charset="utf-8" />
+  <style>
     html {
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+      font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
     }
-</style>
-<h1>Locales Example</h1>
+  </style>
+  <h1>Locales Example</h1>
 
-<h2>de-DE</h2>
-<pre></pre>
+  <h2>de-DE</h2>
+  <pre></pre>
 
-<script type="module">
-
-    import { OpeningHours, WeekDays } from '../lib/esnext/esm/OpeningHours.js';
+  <script type="module">
+    import { OpeningHours, WeekDays } from "../lib/esnext/index.esm.js";
 
     const currentDate = new Date(2020, 8, 15);
 
     const oh = new OpeningHours({
-        currentDate,
-        showClosedDays: true
+      currentDate,
+      showClosedDays: true,
     });
 
     oh.load([
-        { "day": 1, "from": "0800", "until": "1230" },
-        { "day": 1, "from": "1300", "until": "1600" },
-        { "day": 2, "from": "0800", "until": "1230" },
-        { "day": 2, "from": "1300", "until": "1600" },
-        { "day": 3, "from": "0800", "until": "1400" },
-        { "day": 4, "from": "0800", "until": "1230" },
-        { "day": 4, "from": "1300", "until": "1600" },
-        { "day": 5, "from": "0800", "until": "1230" },
-        { "day": 5, "from": "1300", "until": "1600" },
-        { "day": 6, "from": "1000", "until": "1400" }
+      { day: 1, from: "0800", until: "1230" },
+      { day: 1, from: "1300", until: "1600" },
+      { day: 2, from: "0800", until: "1230" },
+      { day: 2, from: "1300", until: "1600" },
+      { day: 3, from: "0800", until: "1400" },
+      { day: 4, from: "0800", until: "1230" },
+      { day: 4, from: "1300", until: "1600" },
+      { day: 5, from: "0800", until: "1230" },
+      { day: 5, from: "1300", until: "1600" },
+      { day: 6, from: "1000", until: "1400" },
     ]);
 
-    const locales = ['de-DE', 'en-US', 'en-GB', 'zh-CN', 'ko-KR'];
+    const locales = ["de-DE", "en-US", "en-GB", "zh-CN", "ko-KR"];
 
     let index = 0;
-    document.querySelector('h2').innerHTML = locales[index];
-    document.querySelector('pre').innerHTML = oh.toString({
-        locales: locales[index++],
-        currentDayOnTop: true
+    document.querySelector("h2").innerHTML = locales[index];
+    document.querySelector("pre").innerHTML = oh.toString({
+      locales: locales[index++],
+      currentDayOnTop: true,
     });
 
     setInterval(() => {
-        document.querySelector('h2').innerHTML = locales[index];
-        document.querySelector('pre').innerHTML = oh.toString({
-            locales: locales[index++],
-            currentDayOnTop: true
-        });
-        if (index === locales.length) {
-            index = 0;
-        }
+      document.querySelector("h2").innerHTML = locales[index];
+      document.querySelector("pre").innerHTML = oh.toString({
+        locales: locales[index++],
+        currentDayOnTop: true,
+      });
+      if (index === locales.length) {
+        index = 0;
+      }
     }, 2000);
-</script>
-
+  </script>
 </html>

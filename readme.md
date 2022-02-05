@@ -1,5 +1,7 @@
 # OpeningHours
 
+[![Build Status](https://app.travis-ci.com/phoenix344/opening-hours.svg?branch=master)](https://app.travis-ci.com/phoenix344/opening-hours)
+
 A plain typescript/ES6+ opening hours library with no external dependencies.
 
 ## Features
@@ -11,10 +13,9 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 - [x] Cut a timespan out of the opening hours (i.e. business hours between 8 AM till 6 PM, pause between 12 and 1 PM)
 - [x] Provide functions to get the current open state
 - [x] Provide functions to get an indicator for open/close soon
-
-## Note
-
-If you want to contribute, you can add a PR, but you should check the develop branch, not the master.
+- [ ] Special opening hours for a given timespan in days
+- [ ] Alternative text for special opening hours
+- [ ] Schema.org import/export
 
 ## Examples
 
