@@ -1,6 +1,6 @@
 # OpeningHours
 
-[![Build Status](https://app.travis-ci.com/phoenix344/opening-hours.svg?branch=master)](https://app.travis-ci.com/phoenix344/opening-hours)
+[![<ORG_NAME>](https://circleci.com/github/phoenix344/opening-hours.svg.svg?style=svg)](https://app.circleci.com/pipelines/github/phoenix344/opening-hours?filter=all)
 
 A plain typescript/ES6+ opening hours library with no external dependencies.
 
@@ -13,9 +13,9 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 - [x] Cut a timespan out of the opening hours (i.e. business hours between 8 AM till 6 PM, pause between 12 and 1 PM)
 - [x] Provide functions to get the current open state
 - [x] Provide functions to get an indicator for open/close soon
+- [x] Schema.org import/export
 - [ ] Special opening hours for a given timespan in days
 - [ ] Alternative text for special opening hours
-- [ ] Schema.org import/export
 
 ## Examples
 
