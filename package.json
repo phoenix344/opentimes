@@ -1,6 +1,6 @@
 {
   "name": "@xplive/opening-hours",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": "dest/openinghours.js",
   "module": "dest/openinghours.js",
   "types": "dest/openinghours.d.ts",
