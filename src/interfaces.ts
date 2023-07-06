@@ -1,4 +1,4 @@
-import { WeekDays } from "./WeekDays";
+import { WeekDays } from "./WeekDays.ts";
 
 export declare type DateType = Date | number | string;
 

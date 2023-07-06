@@ -3,10 +3,10 @@ import {
   OpenTimeOutput,
   OpeningHoursOptions,
   OpenTimeInternal,
-} from "../interfaces";
-import { Exporter, Importer } from "../Converter";
-import { Normalizer } from "../core/Normalizer";
-import { insertOpenTime, postOptimize } from "../helpers";
+} from "../interfaces.ts";
+import { Exporter, Importer } from "../Converter.ts";
+import { Normalizer } from "../core/Normalizer.ts";
+import { insertOpenTime, postOptimize } from "../helpers.ts";
 
 export class Json
   implements

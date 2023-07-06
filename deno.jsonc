@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": false,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "deno.ns",
+      "deno.unstable"
+    ]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dest", "src/**/*.spec.ts", "esbuild.js"]
+}

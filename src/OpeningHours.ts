@@ -1,23 +1,25 @@
-import { Microdata, MicrodataFormat } from "./converter/Microdata";
-import { Json } from "./converter/Json";
-import { DisplayJson } from "./converter/DisplayJson";
-import { DisplayText } from "./converter/DisplayText";
+import { Microdata, MicrodataFormat } from "./converter/Microdata.ts";
+import { Json } from "./converter/Json.ts";
+import { DisplayJson } from "./converter/DisplayJson.ts";
+import { DisplayText } from "./converter/DisplayText.ts";
 import {
   cutTimespans,
   fromRemoteDate,
   getState,
   insertOpenTime,
   postOptimize,
-} from "./helpers";
+} from "./helpers.ts";
 import {
-  OpeningHoursOptions,
-  OpenTimeInternal,
   DateType,
-  OpenTimeRemovableInput,
+  OpeningHoursOptions,
   OpenTimeInput,
-} from "./interfaces";
-import { WeekDays, WeekDaysShort } from "./WeekDays";
-import { Normalizer } from "./core/Normalizer";
+  OpenTimeInternal,
+  OpenTimeRemovableInput,
+  OpenTimeResultOutput,
+} from "./interfaces.ts";
+import { WeekDays, WeekDaysShort } from "./WeekDays.ts";
+import { Normalizer } from "./core/Normalizer.ts";
+import { OpenState } from "./OpenState.ts";
 
 export class OpeningHours {
   static readonly defaultOptions: OpeningHoursOptions = {
@@ -98,7 +100,7 @@ export class OpeningHours {
     };
   }
 
-  getState(now = new Date()) {
+  getState(now = new Date()): OpenState {
     return getState(this.internalTimes.default, this.options, now);
   }
 
@@ -111,7 +113,7 @@ export class OpeningHours {
     // At least the local time of the current client.
     const { timeZone } = Intl.DateTimeFormat(
       this.options.locales,
-      this.options.dateTimeFormatOptions
+      this.options.dateTimeFormatOptions,
     ).resolvedOptions();
     const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
@@ -135,7 +137,7 @@ export class OpeningHours {
     // At least the local time of the current client.
     const { timeZone } = Intl.DateTimeFormat(
       this.options.locales,
-      this.options.dateTimeFormatOptions
+      this.options.dateTimeFormatOptions,
     ).resolvedOptions();
     const current = fromRemoteDate(now, timeZone);
     const day = current.getDay();
@@ -159,7 +161,7 @@ export class OpeningHours {
     // At least the local time of the current client.
     const { timeZone } = Intl.DateTimeFormat(
       this.options.locales,
-      this.options.dateTimeFormatOptions
+      this.options.dateTimeFormatOptions,
     ).resolvedOptions();
     const { locales } = this.options;
     const format: Intl.DateTimeFormatOptions = {
@@ -271,7 +273,7 @@ export class OpeningHours {
   /**
    * Creates normalized JSON format.
    */
-  toJSON(options?: Partial<OpeningHoursOptions>) {
+  toJSON(options?: Partial<OpeningHoursOptions>): OpenTimeInput[] {
     const converter = new Json();
     return converter.toData(this.times, {
       ...this.options,
@@ -281,7 +283,7 @@ export class OpeningHours {
 
   fromMicrodata(
     times: MicrodataFormat,
-    options: Partial<OpeningHoursOptions> = {}
+    options: Partial<OpeningHoursOptions> = {},
   ) {
     const converter = new Microdata();
     this.internalTimes.default.splice(0);
@@ -309,7 +311,7 @@ export class OpeningHours {
   /**
    * Creates an array output for opening hours.
    */
-  toLocaleJSON(options?: Partial<OpeningHoursOptions>) {
+  toLocaleJSON(options?: Partial<OpeningHoursOptions>): OpenTimeResultOutput[] {
     const converter = new DisplayJson();
     return converter.toData(this.times, {
       ...this.options,

@@ -1,15 +1,11 @@
 {
-  "name": "@phoenix344/opening-hours",
+  "name": "@xplive/opening-hours",
   "version": "2.0.1",
-  "main": "lib/opening-hours.umd.js",
-  "module": "lib/opening-hours.esm.js",
-  "types": "lib/index.d.ts",
+  "main": "dest/openinghours.js",
+  "module": "dest/openinghours.js",
+  "types": "dest/openinghours.d.ts",
+  "type": "module",
   "private": false,
-  "files": [
-    "lib/**/*.js",
-    "lib/**/*.d.ts",
-    "src/**/*.ts"
-  ],
   "license": "MIT",
   "keywords": [
     "opening hours",
@@ -20,40 +16,24 @@
     "hours"
   ],
   "author": {
-    "email": "phoenix34@protonmail.com",
-    "name": "phoenix34",
-    "url": "https://github.com/phoenix344/opening-hours"
+    "email": "mstoecklein@xp.live",
+    "name": "Mario Stöcklein",
+    "url": "https://github.com/mstoecklein/opening-hours"
   },
   "repository": {
-    "url": "https://github.com/phoenix344/opening-hours.git"
+    "url": "https://github.com/mstoecklein/opening-hours.git"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.7",
-    "@babel/preset-env": "^7.20.2",
-    "@babel/preset-typescript": "^7.18.6",
-    "@rollup/plugin-babel": "^6.0.3",
-    "@types/jest": "^29.2.4",
-    "@typescript-eslint/eslint-plugin": "^5.47.0",
-    "@typescript-eslint/parser": "^5.47.0",
-    "eslint": "^8.30.0",
-    "eslint-plugin-jest": "^27.1.7",
-    "jest": "^29.3.1",
-    "rollup": "^3.8.0",
-    "rollup-plugin-analyzer": "^4.0.0",
-    "rollup-plugin-cleaner": "^1.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.34.1",
-    "ts-jest": "^29.0.3",
-    "typescript": "^4.9.4"
+    "esbuild": "^0.18.11",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.1.6"
   },
   "scripts": {
-    "start": "rollup -c rollup.config.mjs -w",
-    "build": "BUILD=production rollup -c rollup.config.mjs",
-    "lint": "eslint",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "coverage": "jest --coverage",
-    "prepublishOnly": "BUILD=production rollup -c rollup.config.mjs && eslint && jest"
+    "ts-types": " tsc --emitDeclarationOnly",
+    "replaceDts": "find dest -type f -name \"*.d.ts\" -exec sh -c 'sed \"s/\\.ts/\\.d.ts/g\" \"$0\" > \"$0.tmp\" && mv \"$0.tmp\" \"$0\"' {} \\;",
+    "bundleDts": "echo \"$(grep -o '\".*\"' dest/types/index.d.ts | sed 's/\"//g' | xargs -I{} cat dest/types/{})\" > dest/openinghours.d.ts",
+    "unimportDts": "echo \"$(grep -vE '^import\\s.*;' dest/openinghours.d.ts)\" > dest/openinghours.d.ts",
+    "dts": "npm run ts-types && npm run replaceDts && npm run bundleDts && npm run unimportDts && rimraf dest/types",
+    "build": "rimraf dest && node ./esbuild.js && npm run dts"
   }
 }

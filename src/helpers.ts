@@ -1,5 +1,5 @@
-import { OpenState } from "./OpenState";
-import { OpeningHoursOptions, OpenTimeInternal } from "./interfaces";
+import { OpenState } from "./OpenState.ts";
+import { OpeningHoursOptions, OpenTimeInternal } from "./interfaces.ts";
 
 export function toRemoteDate(date: Date, timeZone?: string) {
   if (!timeZone) {

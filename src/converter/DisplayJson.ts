@@ -1,11 +1,11 @@
-import { fromRemoteDate } from "../helpers";
-import { Exporter } from "../Converter";
+import { fromRemoteDate } from "../helpers.ts";
+import { Exporter } from "../Converter.ts";
 import {
   OpenTimeResultOutput,
   OpeningHoursOptions,
   OpenTimeInternal,
-} from "../interfaces";
-import { WeekDaysShort } from "../WeekDays";
+} from "../interfaces.ts";
+import { WeekDaysShort } from "../WeekDays.ts";
 
 export class DisplayJson
   implements Exporter<OpenTimeResultOutput[], OpeningHoursOptions>

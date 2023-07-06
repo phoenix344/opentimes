@@ -3,3 +3,4 @@ lib
 coverage
 .vscode
 yarn-error.log
+.deno_cache

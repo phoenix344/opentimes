@@ -1,7 +1,7 @@
-import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
-import { createDateTime, insertOpenTime, postOptimize } from "../helpers";
-import { Exporter, Importer } from "../Converter";
-import { Normalizer } from "../core/Normalizer";
+import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces.ts";
+import { createDateTime, insertOpenTime, postOptimize } from "../helpers.ts";
+import { Exporter, Importer } from "../Converter.ts";
+import { Normalizer } from "../core/Normalizer.ts";
 
 const mapping = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
