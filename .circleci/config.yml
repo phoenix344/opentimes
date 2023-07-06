@@ -11,6 +11,6 @@ jobs:
           deno test src/**/*.spec.ts
 
 workflows:
-  sample:
+  opentimes:
     jobs:
       - test
