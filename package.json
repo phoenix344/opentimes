@@ -1,9 +1,9 @@
 {
-  "name": "@xplive/opening-hours",
-  "version": "2.0.2",
-  "main": "dest/openinghours.js",
-  "module": "dest/openinghours.js",
-  "types": "dest/openinghours.d.ts",
+  "name": "opentimes",
+  "version": "1.0.0",
+  "main": "dest/opentimes.js",
+  "module": "dest/opentimes.js",
+  "types": "dest/opentimes.d.ts",
   "type": "module",
   "private": false,
   "license": "MIT",
@@ -31,8 +31,8 @@
   "scripts": {
     "ts-types": " tsc --emitDeclarationOnly",
     "replaceDts": "find dest -type f -name \"*.d.ts\" -exec sh -c 'sed \"s/\\.ts/\\.d.ts/g\" \"$0\" > \"$0.tmp\" && mv \"$0.tmp\" \"$0\"' {} \\;",
-    "bundleDts": "echo \"$(grep -o '\".*\"' dest/types/index.d.ts | sed 's/\"//g' | xargs -I{} cat dest/types/{})\" > dest/openinghours.d.ts",
-    "unimportDts": "echo \"$(grep -vE '^import\\s.*;' dest/openinghours.d.ts)\" > dest/openinghours.d.ts",
+    "bundleDts": "echo \"$(grep -o '\".*\"' dest/types/index.d.ts | sed 's/\"//g' | xargs -I{} cat dest/types/{})\" > dest/opentimes.d.ts",
+    "unimportDts": "echo \"$(grep -vE '^import\\s.*;' dest/opentimes.d.ts)\" > dest/opentimes.d.ts",
     "dts": "npm run ts-types && npm run replaceDts && npm run bundleDts && npm run unimportDts && rimraf dest/types",
     "build": "rimraf dest && node ./esbuild.js && npm run dts"
   }

@@ -3,7 +3,7 @@ import { build } from "esbuild";
 // build for node
 build({
   entryPoints: ["src/index.ts"],
-  outfile: "dest/openinghours.js",
+  outfile: "dest/opentimes.js",
   bundle: true,
   sourcemap: true,
   minify: true,
