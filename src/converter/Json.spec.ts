@@ -1,6 +1,10 @@
-import { OpeningHoursOptions } from "../interfaces";
-import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { Json } from "./Json";
+import {
+  assertEquals,
+  assertFalse,
+} from "https://deno.land/std@0.193.0/testing/asserts.ts";
+import { OpeningHoursOptions } from "../interfaces.ts";
+import { WeekDays, WeekDaysShort } from "../WeekDays.ts";
+import { Json } from "./Json.ts";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -21,99 +25,97 @@ const defaultOptions: OpeningHoursOptions = {
   showClosedDays: false,
 };
 
-describe("Json", () => {
-  it("::toData(input, options?)", () => {
-    const converter = new Json();
-    const [monday, tuesdayMorning, tuesdayAfternoon] = converter.toData(
+Deno.test("Json::toData(input, options?)", () => {
+  const converter = new Json();
+  const [monday, tuesdayMorning, tuesdayAfternoon] = converter.toData(
+    [
       [
-        [
-          /** sunday */
-        ],
-        [
-          /** monday */
-          {
-            from: new Date("2021-09-28T08:00"),
-            until: new Date("2021-09-28T14:00"),
-          },
-        ],
-        [
-          /** tuesday */
-          {
-            from: new Date("2021-09-28T08:00"),
-            until: new Date("2021-09-28T12:00"),
-          },
-          {
-            from: new Date("2021-09-28T12:30"),
-            until: new Date("2021-09-28T17:30"),
-            text: "test",
-          },
-        ],
-        [
-          /** wednesday */
-        ],
-        [
-          /** thursday */
-        ],
-        [
-          /** friday */
-        ],
-        [
-          /** saturday */
-        ],
+        /** sunday */
       ],
-      defaultOptions
-    );
-
-    expect(monday.day).toBe(WeekDays.Monday);
-    expect(monday.from).toBe("0800");
-    expect(monday.until).toBe("1400");
-    expect(monday.text).toBeUndefined();
-
-    expect(tuesdayMorning.day).toBe(WeekDays.Tuesday);
-    expect(tuesdayMorning.from).toBe("0800");
-    expect(tuesdayMorning.until).toBe("1200");
-    expect(tuesdayMorning.text).toBeUndefined();
-
-    expect(tuesdayAfternoon.day).toBe(WeekDays.Tuesday);
-    expect(tuesdayAfternoon.from).toBe("1230");
-    expect(tuesdayAfternoon.until).toBe("1730");
-    expect(tuesdayAfternoon.text).toBe("test");
-  });
-
-  it("::fromData(input, options?)", () => {
-    const converter = new Json();
-    const result = converter.fromData(
       [
+        /** monday */
         {
-          day: WeekDays.Monday,
-          from: "0800",
-          until: "1200",
+          from: new Date("2021-09-28T08:00"),
+          until: new Date("2021-09-28T14:00"),
+        },
+      ],
+      [
+        /** tuesday */
+        {
+          from: new Date("2021-09-28T08:00"),
+          until: new Date("2021-09-28T12:00"),
         },
         {
-          day: WeekDays.Tuesday,
-          from: "0800",
-          until: "1200",
-        },
-        {
-          day: WeekDays.Tuesday,
-          from: "1230",
-          until: "1730",
+          from: new Date("2021-09-28T12:30"),
+          until: new Date("2021-09-28T17:30"),
           text: "test",
         },
       ],
-      defaultOptions
-    );
+      [
+        /** wednesday */
+      ],
+      [
+        /** thursday */
+      ],
+      [
+        /** friday */
+      ],
+      [
+        /** saturday */
+      ],
+    ],
+    defaultOptions,
+  );
 
-    const [monday] = result[WeekDays.Monday];
-    const [tuesdayMorning, tuesdayAfternoon] = result[WeekDays.Tuesday];
+  assertEquals(monday.day, WeekDays.Monday);
+  assertEquals(monday.from, "0800");
+  assertEquals(monday.until, "1400");
+  assertFalse(monday.text);
 
-    expect(monday.from).toStrictEqual(new Date("2021-09-27T08:00"));
-    expect(monday.until).toStrictEqual(new Date("2021-09-27T12:00"));
+  assertEquals(tuesdayMorning.day, WeekDays.Tuesday);
+  assertEquals(tuesdayMorning.from, "0800");
+  assertEquals(tuesdayMorning.until, "1200");
+  assertFalse(tuesdayMorning.text);
 
-    expect(tuesdayMorning.from).toStrictEqual(new Date("2021-09-28T08:00"));
-    expect(tuesdayMorning.until).toStrictEqual(new Date("2021-09-28T12:00"));
+  assertEquals(tuesdayAfternoon.day, WeekDays.Tuesday);
+  assertEquals(tuesdayAfternoon.from, "1230");
+  assertEquals(tuesdayAfternoon.until, "1730");
+  assertEquals(tuesdayAfternoon.text, "test");
+});
 
-    expect(tuesdayAfternoon.from).toStrictEqual(new Date("2021-09-28T12:30"));
-    expect(tuesdayAfternoon.until).toStrictEqual(new Date("2021-09-28T17:30"));
-  });
+Deno.test("Json::fromData(input, options?)", () => {
+  const converter = new Json();
+  const result = converter.fromData(
+    [
+      {
+        day: WeekDays.Monday,
+        from: "0800",
+        until: "1200",
+      },
+      {
+        day: WeekDays.Tuesday,
+        from: "0800",
+        until: "1200",
+      },
+      {
+        day: WeekDays.Tuesday,
+        from: "1230",
+        until: "1730",
+        text: "test",
+      },
+    ],
+    defaultOptions,
+  );
+
+  const [monday] = result[WeekDays.Monday];
+  const [tuesdayMorning, tuesdayAfternoon] = result[WeekDays.Tuesday];
+
+  assertEquals(monday.from, new Date("2021-09-27T08:00"));
+  assertEquals(monday.until, new Date("2021-09-27T12:00"));
+
+  assertEquals(tuesdayMorning.from, new Date("2021-09-28T08:00"));
+  assertEquals(tuesdayMorning.until, new Date("2021-09-28T12:00"));
+
+  assertEquals(tuesdayAfternoon.from, new Date("2021-09-28T12:30"));
+  assertEquals(tuesdayAfternoon.until, new Date("2021-09-28T17:30"));
 });

@@ -1,10 +1,10 @@
-import { WeekDays } from "../WeekDays";
-import { normalizeUntilTime, createDateTime, fromRemoteDate } from "../helpers";
+import { WeekDays } from "../WeekDays.ts";
+import { normalizeUntilTime, createDateTime, fromRemoteDate } from "../helpers.ts";
 import {
   OpeningHoursOptions,
   OpenTimeInput,
   OpenTimeInternal,
-} from "../interfaces";
+} from "../interfaces.ts";
 
 export class Normalizer {
   constructor(private options: OpeningHoursOptions) {}

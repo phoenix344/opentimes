@@ -1,6 +1,6 @@
-import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces";
-import { Exporter } from "../Converter";
-import { DisplayJson } from "./DisplayJson";
+import { OpeningHoursOptions, OpenTimeInternal } from "../interfaces.ts";
+import { Exporter } from "../Converter.ts";
+import { DisplayJson } from "./DisplayJson.ts";
 
 export class DisplayText
   implements Exporter<string, OpeningHoursOptions>

@@ -3,7 +3,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["DOM", "ESNext"],
-    "outDir": "lib",
+    "outDir": "dest",
     "baseUrl": "src",
     "strict": true,
     "sourceMap": true,
@@ -12,10 +12,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     "declaration": true,
-    "declarationDir": "lib",
-    "types": ["jest"]
+    "declarationDir": "dest/types"
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.spec.ts", "lib/**/*"]
+  "exclude": ["**/*.spec.ts", "dest/**/*"]
 }

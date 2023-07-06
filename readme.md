@@ -1,6 +1,6 @@
-# OpeningHours
+# OpenTimes
 
-[![CircleCI](https://circleci.com/gh/phoenix344/opening-hours/tree/master.svg?style=svg)](https://circleci.com/gh/phoenix344/opening-hours/tree/master)
+[![CircleCI](https://circleci.com/gh/mstoecklein/opening-hours/tree/master.svg?style=svg)](https://circleci.com/gh/mstoecklein/opening-hours/tree/master)
 
 A plain typescript/ES6+ opening hours library with no external dependencies.
 
@@ -16,12 +16,13 @@ A plain typescript/ES6+ opening hours library with no external dependencies.
 - [x] Schema.org import/export
 - [ ] Special opening hours for a given timespan in days
 - [ ] Alternative text for special opening hours
+- [ ] Update documentation ffs
 
 ## Examples
 
 Initialize your class:
 ```typescript
-import { OpeningHours, WeekDays } from '@phoenix344/opening-hours';
+import { OpeningHours, WeekDays } from 'opentimes';
 
 const oh = new OpeningHours({
     // Predefine a date makes only sense to test the current day

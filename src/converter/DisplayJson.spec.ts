@@ -1,6 +1,7 @@
-import { OpeningHoursOptions } from "../interfaces";
-import { WeekDays, WeekDaysShort } from "../WeekDays";
-import { DisplayJson } from "./DisplayJson";
+import { assertEquals } from "https://deno.land/std@0.193.0/testing/asserts.ts";
+import { OpeningHoursOptions } from "../interfaces.ts";
+import { WeekDays, WeekDaysShort } from "../WeekDays.ts";
+import { DisplayJson } from "./DisplayJson.ts";
 
 const defaultOptions: OpeningHoursOptions = {
   weekStart: WeekDays.Monday,
@@ -21,59 +22,57 @@ const defaultOptions: OpeningHoursOptions = {
   showClosedDays: false,
 };
 
-describe("DisplayJson", () => {
-  it("::toData(input, options?)", () => {
-    const converter = new DisplayJson();
-    const [monday, tuesday] = converter.toData(
+Deno.test("DisplayJson::toData(input, options?)", () => {
+  const converter = new DisplayJson();
+  const [monday, tuesday] = converter.toData(
+    [
       [
-        [
-          /** sunday */
-        ],
-        [
-          /** monday */
-          {
-            from: new Date("2021-09-28T08:00"),
-            until: new Date("2021-09-28T14:00"),
-          },
-        ],
-        [
-          /** tuesday */
-          {
-            from: new Date("2021-09-28T08:00"),
-            until: new Date("2021-09-28T12:00"),
-          },
-          {
-            from: new Date("2021-09-28T12:30"),
-            until: new Date("2021-09-28T17:30"),
-            text: "test",
-          },
-        ],
-        [
-          /** wednesday */
-        ],
-        [
-          /** thursday */
-        ],
-        [
-          /** friday */
-        ],
-        [
-          /** saturday */
-        ],
+        /** sunday */
       ],
-      defaultOptions
-    );
+      [
+        /** monday */
+        {
+          from: new Date("2021-09-28T08:00"),
+          until: new Date("2021-09-28T14:00"),
+        },
+      ],
+      [
+        /** tuesday */
+        {
+          from: new Date("2021-09-28T08:00"),
+          until: new Date("2021-09-28T12:00"),
+        },
+        {
+          from: new Date("2021-09-28T12:30"),
+          until: new Date("2021-09-28T17:30"),
+          text: "test",
+        },
+      ],
+      [
+        /** wednesday */
+      ],
+      [
+        /** thursday */
+      ],
+      [
+        /** friday */
+      ],
+      [
+        /** saturday */
+      ],
+    ],
+    defaultOptions,
+  );
 
-    expect(monday.day).toBe("mon");
-    expect(monday.times[0].from).toBe("08:00");
-    expect(monday.times[0].until).toBe("14:00");
-    expect(monday.active).toBe(false);
+  assertEquals(monday.day, "mon");
+  assertEquals(monday.times[0].from, "08:00");
+  assertEquals(monday.times[0].until, "14:00");
+  assertEquals(monday.active, false);
 
-    expect(tuesday.day).toBe("tue");
-    expect(tuesday.times[0].from).toBe("08:00");
-    expect(tuesday.times[0].until).toBe("12:00");
-    expect(tuesday.times[1].from).toBe("12:30");
-    expect(tuesday.times[1].until).toBe("17:30");
-    expect(tuesday.active).toBe(true);
-  });
+  assertEquals(tuesday.day, "tue");
+  assertEquals(tuesday.times[0].from, "08:00");
+  assertEquals(tuesday.times[0].until, "12:00");
+  assertEquals(tuesday.times[1].from, "12:30");
+  assertEquals(tuesday.times[1].until, "17:30");
+  assertEquals(tuesday.active, true);
 });
